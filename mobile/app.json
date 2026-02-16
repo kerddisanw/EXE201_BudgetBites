@@ -1,0 +1,35 @@
+{
+    "expo": {
+        "name": "Student Meal Combo",
+        "slug": "student-meal-combo",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "splash": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#667eea"
+        },
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.studentmeal.combo"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#667eea"
+            },
+            "package": "com.studentmeal.combo"
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        },
+        "extra": {
+            "apiUrl": process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api"
+        }
+    }
+}

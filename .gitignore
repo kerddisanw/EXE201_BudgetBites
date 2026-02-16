@@ -1,0 +1,32 @@
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore environment files
+.env.local
+.env.production
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore build artifacts
+target/
+dist/
+build/
+*.jar
+*.war
+
+# Ignore node modules
+node_modules/
+package-lock.json
+
+# Ignore Docker volumes
+postgres_data/
