@@ -25,6 +25,15 @@ public class MealPartnerService {
                 .collect(Collectors.toList());
     }
 
+    // Public API — chỉ trả về partner đang active và đã được duyệt (status=true)
+    @Transactional(readOnly = true)
+    public List<MealPartnerResponse> getActivePartners() {
+        return mealPartnerRepository.findByActiveTrueAndStatusTrue()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public MealPartnerResponse getPartnerById(Long id) {
         MealPartner partner = mealPartnerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Meal Partner not found"));
