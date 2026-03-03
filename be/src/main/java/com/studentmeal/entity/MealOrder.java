@@ -25,11 +25,19 @@ public class MealOrder {
     @JoinColumn(name = "partner_id")
     private MealPartner partner;
 
+    // Món ăn cụ thể được chọn từ thực đơn (optional)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_item_id")
+    private MenuItem menuItem;
+
     @Column(nullable = false)
     private LocalDate orderDate;
 
     @Column(nullable = false)
-    private String mealType; // Lunch / Dinner / Breakfast
+    private String mealType; // Breakfast / Lunch / Dinner
+
+    @Column(nullable = false)
+    private Boolean withTray = false; // Thêm khay ăn và dụng cụ ăn (+1,000đ)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

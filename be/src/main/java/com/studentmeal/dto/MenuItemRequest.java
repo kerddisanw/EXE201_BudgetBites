@@ -1,18 +1,15 @@
 package com.studentmeal.dto;
 
+import com.studentmeal.entity.MenuItem;
 import lombok.Data;
-
 import java.math.BigDecimal;
 
 @Data
 public class MenuItemRequest {
-
-    // id không cần thiết – tự sinh
-    private String mealType; // Ví dụ: "Lunch", "Dinner", "Breakfast"
-
-    private String itemName; // Tên món ăn
-
-    private Integer calories; // Lượng calo (có thể null)
-
-    private BigDecimal priceOriginal; // Giá gốc (VNĐ)
+    private MenuItem.DayOfWeek dayOfWeek; // MONDAY ... SUNDAY
+    private String mealType; // Breakfast / Lunch / Dinner
+    private String itemName;
+    private String imageUrl; // URL ảnh món ăn
+    private Integer calories;
+    private BigDecimal priceOriginal;
 }

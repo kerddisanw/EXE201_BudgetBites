@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface MealPartnerRepository extends JpaRepository<MealPartner, Long> {
     List<MealPartner> findByActiveTrue();
+
+    List<MealPartner> findByActiveTrueAndStatusTrue();
 }

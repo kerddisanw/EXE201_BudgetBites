@@ -21,14 +21,24 @@ public class MenuItem {
     @JoinColumn(name = "menu_id")
     private WeeklyMenu menu;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String mealType; // Lunch / Dinner
+    private DayOfWeek dayOfWeek; // MONDAY ... SUNDAY
+
+    @Column(nullable = false)
+    private String mealType; // Breakfast / Lunch / Dinner
 
     @Column(nullable = false)
     private String itemName;
+
+    private String imageUrl; // Ảnh món ăn
 
     private Integer calories;
 
     @Column(nullable = false)
     private BigDecimal priceOriginal;
+
+    public enum DayOfWeek {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+    }
 }

@@ -4,10 +4,12 @@ import com.studentmeal.dto.MealOrderDTO;
 import com.studentmeal.dto.MealOrderRequest;
 import com.studentmeal.entity.MealOrder;
 import com.studentmeal.entity.MealPartner;
+import com.studentmeal.entity.MenuItem;
 import com.studentmeal.entity.Subscription;
 import com.studentmeal.exception.ResourceNotFoundException;
 import com.studentmeal.repository.MealOrderRepository;
 import com.studentmeal.repository.MealPartnerRepository;
+import com.studentmeal.repository.MenuItemRepository;
 import com.studentmeal.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class OrderService {
     private final MealOrderRepository mealOrderRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final MealPartnerRepository mealPartnerRepository;
+    private final MenuItemRepository menuItemRepository;
 
     @Transactional(readOnly = true)
     public List<MealOrderDTO> getOrdersBySubscription(Long subscriptionId) {
@@ -46,6 +49,14 @@ public class OrderService {
         order.setMealType(request.getMealType());
         order.setStatus(MealOrder.OrderStatus.PENDING);
 
+        // Gắn menuItem nếu user chọn món cụ thể
+        if (request.getMenuItemId() != null) {
+            MenuItem menuItem = menuItemRepository.findById(request.getMenuItemId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "MenuItem not found with id: " + request.getMenuItemId()));
+            order.setMenuItem(menuItem);
+        }
+
         return convertToDTO(mealOrderRepository.save(order));
     }
 
@@ -66,6 +77,12 @@ public class OrderService {
         dto.setOrderDate(order.getOrderDate());
         dto.setMealType(order.getMealType());
         dto.setStatus(order.getStatus().name());
+
+        if (order.getMenuItem() != null) {
+            dto.setMenuItemId(order.getMenuItem().getId());
+            dto.setMenuItemName(order.getMenuItem().getItemName());
+        }
+
         return dto;
     }
 }

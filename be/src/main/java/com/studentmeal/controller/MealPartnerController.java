@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/partners")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class MealPartnerController {
 
     private final MealPartnerService mealPartnerService;
@@ -29,11 +28,13 @@ public class MealPartnerController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MealPartnerResponse> createPartner(@RequestBody MealPartnerRequest request) {
         return ResponseEntity.ok(mealPartnerService.createPartner(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MealPartnerResponse> updatePartner(
             @PathVariable Long id,
             @RequestBody MealPartnerRequest request) {
@@ -46,6 +47,7 @@ public class MealPartnerController {
      * PUT /api/admin/partners/{id}/active?value=true
      */
     @PutMapping("/{id}/active")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MealPartnerResponse> setActive(
             @PathVariable Long id,
             @RequestParam Boolean value) {
@@ -57,6 +59,7 @@ public class MealPartnerController {
      * PUT /api/admin/partners/{id}/status?value=true
      */
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MealPartnerResponse> setStatus(
             @PathVariable Long id,
             @RequestParam Boolean value) {
@@ -64,6 +67,7 @@ public class MealPartnerController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePartner(@PathVariable Long id) {
         mealPartnerService.deletePartner(id);
         return ResponseEntity.noContent().build();
