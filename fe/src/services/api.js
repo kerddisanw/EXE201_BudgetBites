@@ -38,11 +38,13 @@ api.interceptors.response.use(
 export const authService = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
+    googleLogin: (idToken) => api.post('/auth/google', { idToken }),
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     }
 };
+
 
 export const packageService = {
     getAllPackages: () => api.get('/packages'),

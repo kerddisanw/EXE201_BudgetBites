@@ -95,3 +95,71 @@
 .auth-link a:hover {
     text-decoration: underline;
 }
+
+.error-message {
+    background: #fff0f0;
+    color: #e53e3e;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #e53e3e;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 1.25rem 0;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.divider span {
+    padding: 0 0.75rem;
+}
+
+.google-login-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: white;
+    color: #333;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.google-login-btn:hover:not(:disabled) {
+    border-color: #4285F4;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
+    transform: translateY(-1px);
+}
+
+.google-login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.google-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.google-btn-wrapper>div {
+    width: 100% !important;
+}
