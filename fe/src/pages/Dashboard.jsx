@@ -14,16 +14,6 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container">
-            <nav className="navbar">
-                <div className="nav-brand">Student Meal Combo</div>
-                <div className="nav-links">
-                    <Link to="/dashboard">Dashboard</Link>
-                    <Link to="/packages">Packages</Link>
-                    <Link to="/subscriptions">My Subscriptions</Link>
-                    <button onClick={handleLogout} className="logout-btn">Logout</button>
-                </div>
-            </nav>
-
             <div className="dashboard-content">
                 <h1>Welcome, {user.fullName}!</h1>
                 <div className="dashboard-cards">
@@ -41,6 +31,13 @@ function Dashboard() {
                         <h3>Account Info</h3>
                         <p>Email: {user.email}</p>
                         <p>Role: {user.role}</p>
+                        <button
+                            onClick={handleLogout}
+                            className="logout-btn"
+                            style={{ marginTop: '12px' }}
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>

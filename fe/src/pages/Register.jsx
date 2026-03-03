@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
 import './Auth.css';
+import AuthFooter from '../components/AuthFooter';
 
 function Register() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
         fullName: '',
-        studentId: '',
         phoneNumber: '',
-        address: ''
+        confirmPassword: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -26,13 +26,31 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Mật khẩu và xác nhận mật khẩu không khớp.');
+            return;
+        }
+
         setLoading(true);
 
+        const payload = {
+            email: formData.email,
+            password: formData.password,
+            fullName: formData.fullName,
+            // Backend requires studentId but UI doesn't collect it anymore.
+            // Generate a simple unique placeholder based on timestamp.
+            studentId: `STD-${Date.now()}`,
+            phoneNumber: formData.phoneNumber || '',
+            address: '',
+            university: 'FPT UNI'
+        };
+
         try {
-            const response = await authService.register(formData);
+            const response = await authService.register(payload);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data));
-            navigate('/dashboard');
+            navigate('/mainpage');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
@@ -41,14 +59,29 @@ function Register() {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h1>Student Meal Combo</h1>
-                <h2>Register</h2>
+        <>
+            <div className="auth-container">
+                <div className="auth-card">
+                <div className="auth-header">
+                    <div className="auth-header-title">Chào mừng đến với BudgetBites</div>
+
+                    <div className="auth-tabs">
+                        <button
+                            className="auth-tab"
+                            type="button"
+                            onClick={() => navigate('/login')}
+                        >
+                            Đăng nhập
+                        </button>
+                        <button className="auth-tab auth-tab-active" type="button">
+                            Đăng ký
+                        </button>
+                    </div>
+                </div>
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Full Name</label>
+                        <label>Họ và tên</label>
                         <input
                             type="text"
                             name="fullName"
@@ -79,17 +112,18 @@ function Register() {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Student ID</label>
+                        <label>Xác nhận mật khẩu</label>
                         <input
-                            type="text"
-                            name="studentId"
-                            value={formData.studentId}
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
                             onChange={handleChange}
                             required
+                            minLength="6"
                         />
                     </div>
                     <div className="form-group">
-                        <label>Phone Number</label>
+                        <label>Số điện thoại</label>
                         <input
                             type="tel"
                             name="phoneNumber"
@@ -97,24 +131,15 @@ function Register() {
                             onChange={handleChange}
                         />
                     </div>
-                    <div className="form-group">
-                        <label>Address</label>
-                        <textarea
-                            name="address"
-                            value={formData.address}
-                            onChange={handleChange}
-                            rows="3"
-                        />
-                    </div>
                     <button type="submit" disabled={loading}>
-                        {loading ? 'Registering...' : 'Register'}
+                        {loading ? 'Đang đăng ký...' : 'Đăng ký'}
                     </button>
                 </form>
-                <p className="auth-link">
-                    Already have an account? <Link to="/login">Login here</Link>
-                </p>
+
+                </div>
             </div>
-        </div>
+            <AuthFooter />
+        </>
     );
 }
 

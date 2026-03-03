@@ -1,0 +1,104 @@
+.bb-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.bb-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.bb-logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.03em;
+}
+
+.bb-logo-primary {
+    color: #f97316; /* orange */
+}
+
+.bb-logo-accent {
+    color: #22c55e; /* green */
+    margin-left: 2px;
+}
+
+.bb-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px; /* spacing between menu items */
+    margin-left: auto; /* push menu (and account button) to the right */
+}
+
+.bb-nav-link {
+    position: relative;
+    font-size: 0.95rem;
+    color: #4b5563;
+    text-decoration: none;
+    padding: 6px 0;
+    font-weight: 600; /* make text bold */
+    transition: color 0.2s ease;
+}
+
+.bb-nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: #f97316;
+    transition: width 0.2s ease;
+}
+
+.bb-nav-link:hover {
+    color: #111827;
+}
+
+.bb-nav-link-active {
+    color: #f97316;
+    font-weight: 600;
+}
+
+.bb-nav-link-active::after {
+    width: 100%;
+}
+
+.bb-account-btn {
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #f97316;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.bb-account-btn:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+}
+
+.bb-account-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .bb-header-inner {
+        padding: 10px 16px;
+        gap: 16px;
+    }
+
+    .bb-nav {
+        display: none;
+    }
+}
+

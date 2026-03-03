@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { authService } from '../services/api';
 import './Auth.css';
+import AuthFooter from '../components/AuthFooter';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -24,7 +25,7 @@ function Login() {
             const response = await authService.login(formData);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data));
-            navigate('/dashboard');
+            navigate('/mainpage');
         } catch (err) {
             setError(err.response?.data?.message || 'Login thất bại. Vui lòng thử lại.');
         } finally {
@@ -39,7 +40,7 @@ function Login() {
             const response = await authService.googleLogin(credentialResponse.credential);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data));
-            navigate('/dashboard');
+            navigate('/mainpage');
         } catch (err) {
             setError(err.response?.data?.message || 'Google login thất bại.');
         }
@@ -50,10 +51,25 @@ function Login() {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h1>Student Meal Combo</h1>
-                <h2>Login</h2>
+        <>
+            <div className="auth-container">
+                <div className="auth-card">
+                <div className="auth-header">
+                    <div className="auth-header-title">Chào mừng đến với BudgetBites</div>
+
+                    <div className="auth-tabs">
+                        <button className="auth-tab auth-tab-active" type="button">
+                            Đăng nhập
+                        </button>
+                        <button
+                            className="auth-tab"
+                            type="button"
+                            onClick={() => navigate('/register')}
+                        >
+                            Đăng ký
+                        </button>
+                    </div>
+                </div>
 
                 {error && <div className="error-message">{error}</div>}
 
@@ -79,7 +95,7 @@ function Login() {
                         />
                     </div>
                     <button type="submit" disabled={loading}>
-                        {loading ? 'Đang đăng nhập...' : 'Login'}
+                        {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                     </button>
                 </form>
 
@@ -102,17 +118,11 @@ function Login() {
                             />
                         </div>
                     </GoogleOAuthProvider>
-                ) : (
-                    <p style={{ color: '#aaa', textAlign: 'center', fontSize: '0.85rem' }}>
-                        Google login chưa được cấu hình
-                    </p>
-                )}
-
-                <p className="auth-link">
-                    Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
-                </p>
+                ) : null}
+                </div>
             </div>
-        </div>
+            <AuthFooter />
+        </>
     );
 }
 
