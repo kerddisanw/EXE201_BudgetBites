@@ -38,6 +38,19 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // Dùng cho Google OAuth — tạo token từ email trực tiếp
+    public String generateTokenForEmail(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpiration);
+
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())

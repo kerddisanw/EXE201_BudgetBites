@@ -1,7 +1,7 @@
 package com.studentmeal.controller;
 
 import com.studentmeal.dto.MealPackageDTO;
-import com.studentmeal.entity.MealPackage;
+import com.studentmeal.dto.MealPackageRequest;
 import com.studentmeal.service.MealPackageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,15 +37,16 @@ public class MealPackageController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create new meal package (Admin only)")
-    public ResponseEntity<MealPackageDTO> createPackage(@RequestBody MealPackage mealPackage) {
-        return ResponseEntity.ok(mealPackageService.createPackage(mealPackage));
+    public ResponseEntity<MealPackageDTO> createPackage(@RequestBody MealPackageRequest request) {
+        return ResponseEntity.ok(mealPackageService.createPackage(request));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update meal package (Admin only)")
-    public ResponseEntity<MealPackageDTO> updatePackage(@PathVariable Long id, @RequestBody MealPackage mealPackage) {
-        return ResponseEntity.ok(mealPackageService.updatePackage(id, mealPackage));
+    public ResponseEntity<MealPackageDTO> updatePackage(@PathVariable Long id,
+            @RequestBody MealPackageRequest request) {
+        return ResponseEntity.ok(mealPackageService.updatePackage(id, request));
     }
 
     @DeleteMapping("/{id}")

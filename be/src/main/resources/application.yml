@@ -41,6 +41,12 @@ jwt:
   secret: ${JWT_SECRET:your-secret-key-change-this-in-production-min-256-bits-long}
   expiration: ${JWT_EXPIRATION:86400000}
 
+# Google OAuth2
+google:
+  client-id: ${GOOGLE_CLIENT_ID:454394650060-lncbuq81mc2r40r590v61s2k17c0n1t8.apps.googleusercontent.com}
+
+
+
 # Swagger/OpenAPI Configuration
 springdoc:
   api-docs:

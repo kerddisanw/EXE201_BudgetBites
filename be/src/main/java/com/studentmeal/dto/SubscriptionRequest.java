@@ -19,4 +19,6 @@ public class SubscriptionRequest {
     private LocalDate startDate;
 
     private String notes;
+
+    private String discountCode;
 }
