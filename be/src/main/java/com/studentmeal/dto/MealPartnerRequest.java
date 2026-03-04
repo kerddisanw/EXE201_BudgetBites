@@ -18,4 +18,6 @@ public class MealPartnerRequest {
     private String email;
 
     private BigDecimal discountRate;
+
+    private String imageUrl;
 }

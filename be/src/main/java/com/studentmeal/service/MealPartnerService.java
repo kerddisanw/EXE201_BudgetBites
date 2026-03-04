@@ -48,7 +48,9 @@ public class MealPartnerService {
         partner.setAddress(request.getAddress());
         partner.setPhoneNumber(request.getPhoneNumber());
         partner.setEmail(request.getEmail());
+        partner.setImageUrl(request.getImageUrl());
         partner.setDiscountRate(request.getDiscountRate());
+
         // active và status mặc định false từ entity
         return toResponse(mealPartnerRepository.save(partner));
     }
@@ -62,7 +64,9 @@ public class MealPartnerService {
         partner.setAddress(request.getAddress());
         partner.setPhoneNumber(request.getPhoneNumber());
         partner.setEmail(request.getEmail());
+        partner.setImageUrl(request.getImageUrl());
         partner.setDiscountRate(request.getDiscountRate());
+
         return toResponse(mealPartnerRepository.save(partner));
     }
 
@@ -97,7 +101,9 @@ public class MealPartnerService {
         response.setAddress(partner.getAddress());
         response.setPhoneNumber(partner.getPhoneNumber());
         response.setEmail(partner.getEmail());
+        response.setImageUrl(partner.getImageUrl());
         response.setActive(partner.getActive());
+
         response.setDiscountRate(partner.getDiscountRate());
         response.setStatus(partner.getStatus());
         response.setCreatedAt(partner.getCreatedAt());

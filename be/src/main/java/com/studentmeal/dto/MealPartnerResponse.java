@@ -20,6 +20,8 @@ public class MealPartnerResponse {
 
     private String email;
 
+    private String imageUrl;
+
     private Boolean active;
 
     private BigDecimal discountRate;
