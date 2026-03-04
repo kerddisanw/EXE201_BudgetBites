@@ -39,6 +39,7 @@ export const authService = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
     googleLogin: (idToken) => api.post('/auth/google', { idToken }),
+    getProfile: () => api.get('/profile'),
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -49,6 +50,15 @@ export const authService = {
 export const packageService = {
     getAllPackages: () => api.get('/packages'),
     getPackageById: (id) => api.get(`/packages/${id}`)
+};
+
+export const partnerService = {
+    getAllPartners: () => api.get('/admin/partners'),
+    getPartnerById: (id) => api.get(`/admin/partners/${id}`)
+};
+
+export const menuService = {
+    getAllMenus: () => api.get('/menus')
 };
 
 export const subscriptionService = {

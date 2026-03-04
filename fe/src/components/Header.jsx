@@ -17,7 +17,7 @@ const Header = () => {
                     <NavLink to="/mainpage" className={navLinkClass}>
                         Trang chủ
                     </NavLink>
-                    <NavLink to="/packages" className={navLinkClass}>
+                    <NavLink to="/partners" className={navLinkClass}>
                         Đặt bữa ăn
                     </NavLink>
                     <NavLink to="/faqs" className={navLinkClass}>
@@ -29,10 +29,10 @@ const Header = () => {
                     <NavLink to="/support" className={navLinkClass}>
                         Trung tâm hỗ trợ
                     </NavLink>
+                    <NavLink to="/account" className={navLinkClass}>
+                        Tài Khoản
+                    </NavLink>
                 </nav>
-                <NavLink to="/account" className="bb-account-btn">
-                    Tài Khoản
-                </NavLink>
             </div>
         </header>
     );

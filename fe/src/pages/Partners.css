@@ -1,0 +1,180 @@
+.partners-page {
+    min-height: calc(100vh - 120px);
+    padding: 32px 28px 28px;
+    background: #f9fafb;
+}
+
+.partners-header {
+    max-width: 900px;
+    margin: 0 auto 24px;
+    text-align: center;
+}
+
+.partners-header h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.partners-header p {
+    font-size: 0.95rem;
+    color: #6b7280;
+}
+
+.partners-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.partner-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 18px 18px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 26px rgba(15, 23, 42, 0.06);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.partner-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    border-color: #f97316;
+}
+
+.partner-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.partner-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.partner-status-badge {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.partner-description {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 8px;
+}
+
+.partner-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.partner-dot {
+    font-size: 0.9rem;
+}
+
+.partner-email {
+    font-size: 0.85rem;
+    color: #f97316;
+    margin-top: 6px;
+}
+
+.partners-page-loading,
+.partners-page-error,
+.partners-placeholder {
+    max-width: 600px;
+    margin: 40px auto 0;
+    text-align: center;
+    color: #6b7280;
+}
+
+.partners-page-error {
+    color: #b91c1c;
+}
+
+.meals-grid {
+    max-width: 1100px;
+    margin: 8px auto 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.meal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 16px 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.meal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.meal-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.meal-price {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f97316;
+}
+
+.meal-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.meal-image-wrapper {
+    margin-top: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f3f4f6;
+}
+
+.meal-image-wrapper img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .partners-page {
+        padding: 24px 16px 20px;
+    }
+
+    .partners-header h1 {
+        font-size: 1.4rem;
+    }
+}
+

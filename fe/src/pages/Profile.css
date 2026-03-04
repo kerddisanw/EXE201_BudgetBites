@@ -1,0 +1,119 @@
+.profile-page {
+    min-height: calc(100vh - 120px);
+    padding: 32px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: #f9fafb;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 720px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    padding: 24px 28px 28px;
+    border: 1px solid #f3f4f6;
+}
+
+.profile-card-loading,
+.profile-card-error {
+    max-width: 480px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.profile-card-error {
+    color: #b91c1c;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.profile-role {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.profile-section {
+    margin-top: 20px;
+}
+
+.profile-section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 24px;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.profile-field-full {
+    grid-column: 1 / -1;
+}
+
+.profile-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9ca3af;
+}
+
+.profile-value {
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+@media (max-width: 768px) {
+    .profile-page {
+        padding: 20px 16px;
+    }
+
+    .profile-card {
+        padding: 20px 18px 22px;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

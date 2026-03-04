@@ -1,0 +1,150 @@
+.about-page {
+    background: #ffffff;
+}
+
+.about-hero {
+    background: linear-gradient(90deg, #fb923c 0%, #22c55e 100%);
+    color: #ffffff;
+    padding: 60px 24px 70px;
+}
+
+.about-hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-hero-inner h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.about-hero-inner p {
+    font-size: 1rem;
+    opacity: 0.95;
+}
+
+.about-section {
+    padding: 40px 24px 48px;
+}
+
+.about-section-alt {
+    background: #f9fafb;
+}
+
+.about-section-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-section-inner h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 16px;
+}
+
+.about-section-inner p {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.about-subtitle {
+    margin-bottom: 24px;
+    color: #6b7280;
+}
+
+.about-values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.about-value-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px 18px 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+    text-align: left;
+}
+
+.about-value-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.about-value-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #fb923c 0%, #22c55e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+}
+
+.about-value-icon svg {
+    display: block; /* remove baseline gap so all icons align evenly */
+}
+
+.about-value-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.about-value-card p {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 0;
+}
+
+.about-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.about-stat {
+    padding: 12px 10px;
+}
+
+.about-stat-number {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #f97316;
+}
+
+.about-stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 40px 16px 50px;
+    }
+
+    .about-hero-inner h1 {
+        font-size: 1.7rem;
+    }
+
+    .about-section {
+        padding: 28px 16px 32px;
+    }
+}
+

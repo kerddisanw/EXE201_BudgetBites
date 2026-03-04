@@ -9,6 +9,8 @@ import Faqs from './pages/Faqs';
 import About from './pages/About';
 import Support from './pages/Support';
 import Account from './pages/Account';
+import Partners from './pages/Partners';
+import PartnerMeals from './pages/PartnerMeals';
 import AppLayout from './components/AppLayout';
 
 function PrivateRoute({ children }) {
@@ -56,6 +58,26 @@ function App() {
                         <PrivateRoute>
                             <AppLayout>
                                 <Packages />
+                            </AppLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/partners"
+                    element={
+                        <PrivateRoute>
+                            <AppLayout>
+                                <Partners />
+                            </AppLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/partners/:id"
+                    element={
+                        <PrivateRoute>
+                            <AppLayout>
+                                <PartnerMeals />
                             </AppLayout>
                         </PrivateRoute>
                     }
