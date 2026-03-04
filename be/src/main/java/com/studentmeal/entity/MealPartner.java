@@ -33,6 +33,8 @@ public class MealPartner {
 
     private String email;
 
+    private String imageUrl;
+
     @Column(nullable = false)
     private Boolean active = false;
 
