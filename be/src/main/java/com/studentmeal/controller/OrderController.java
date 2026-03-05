@@ -17,7 +17,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @GetMapping("/subscription/{subscriptionId}")
+    @GetMapping("/subscriptions/{subscriptionId}")
     public ResponseEntity<List<MealOrderDTO>> getOrdersBySubscription(@PathVariable Long subscriptionId) {
         return ResponseEntity.ok(orderService.getOrdersBySubscription(subscriptionId));
     }

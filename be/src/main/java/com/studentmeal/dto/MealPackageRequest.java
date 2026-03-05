@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 @Data
 public class MealPackageRequest {
 
+    // ID của quán ăn cung cấp gói này
+    private Long partnerId;
+
     private String name;
 
     private String description;
@@ -19,9 +22,6 @@ public class MealPackageRequest {
     private Integer mealsPerDay;
 
     private MealPackage.PackageType packageType;
-
-    // Chỉ giữ partnerId thay vì cả object partner
-    private Long partnerId;
 
     private String imageUrl;
 

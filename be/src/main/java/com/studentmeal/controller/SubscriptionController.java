@@ -30,7 +30,7 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionService.createSubscription(request));
     }
 
-    @GetMapping("/my")
+    @GetMapping("/me")
     @Operation(summary = "Get my subscriptions")
     public ResponseEntity<List<SubscriptionDTO>> getMySubscriptions() {
         return ResponseEntity.ok(subscriptionService.getMySubscriptions());

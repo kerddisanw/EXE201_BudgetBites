@@ -23,7 +23,7 @@ public class DiscountController {
         return ResponseEntity.ok(discountService.getAllDiscounts());
     }
 
-    @GetMapping("/validate/{code}")
+    @GetMapping("/{code}")
     public ResponseEntity<Boolean> validateDiscount(@PathVariable String code) {
         return ResponseEntity.ok(discountService.validateDiscount(code));
     }

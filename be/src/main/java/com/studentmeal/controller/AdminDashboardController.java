@@ -37,7 +37,7 @@ public class AdminDashboardController {
         return ResponseEntity.ok(adminService.getAllCustomers());
     }
 
-    @PatchMapping("/customers/{id}/toggle-active")
+    @PatchMapping("/customers/{id}/active")
     @Operation(summary = "Toggle customer active status")
     public ResponseEntity<com.studentmeal.entity.Customer> toggleCustomerActive(@PathVariable Long id) {
         return ResponseEntity.ok(adminService.toggleCustomerActive(id));

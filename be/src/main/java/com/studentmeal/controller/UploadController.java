@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/api/images")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class UploadController {
@@ -25,7 +25,7 @@ public class UploadController {
      * Upload ảnh quán ăn (partner logo/banner)
      * POST /api/upload/partner
      */
-    @PostMapping(value = "/partner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/partners", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload ảnh quán ăn lên Cloudinary", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)))
     public ResponseEntity<Map<String, String>> uploadPartnerImage(
             @RequestPart("file") MultipartFile file) throws IOException {
@@ -37,7 +37,7 @@ public class UploadController {
      * Upload ảnh món ăn (menu item)
      * POST /api/upload/menu-item
      */
-    @PostMapping(value = "/menu-item", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/menu-items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload ảnh món ăn lên Cloudinary", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)))
     public ResponseEntity<Map<String, String>> uploadMenuItemImage(
             @RequestPart("file") MultipartFile file) throws IOException {
@@ -49,7 +49,7 @@ public class UploadController {
      * Upload ảnh gói ăn (package thumbnail)
      * POST /api/upload/package
      */
-    @PostMapping(value = "/package", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/packages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload ảnh gói ăn lên Cloudinary", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)))
     public ResponseEntity<Map<String, String>> uploadPackageImage(
             @RequestPart("file") MultipartFile file) throws IOException {

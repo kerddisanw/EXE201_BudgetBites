@@ -26,9 +26,9 @@ import java.util.Map;
 @Data
 public class WeeklyScheduleDTO {
     private Long partnerId;
+    private Long menuId;
     private String partnerName;
     private String weekStartDate; // "2026-03-02"
-    private Long menuId;
 
     // Key: "MONDAY", "TUESDAY", ...
     // Value: Map của mealType → list món

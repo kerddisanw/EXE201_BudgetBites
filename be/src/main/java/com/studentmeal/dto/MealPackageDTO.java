@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MealPackageDTO {
     private Long id;
+    private Long partnerId;
     private String name;
     private String description;
     private BigDecimal price;
