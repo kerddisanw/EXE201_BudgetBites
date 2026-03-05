@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 public class CartItemDTO {
     private Long id;
     private Long menuItemId;
+    private Long partnerId;
     private String itemName;
     private String dayOfWeek;
     private String mealType;
     private BigDecimal priceOriginal;
-    private LocalDate orderDate; // Ngày user muốn ăn
-    private Boolean withTray; // Thêm khay ăn và dụng cụ ăn (+1,000đ)?
-    private Long partnerId;
+    private LocalDate orderDate;
+    private Boolean withTray;
     private String partnerName;
     private LocalDateTime addedAt;
 }

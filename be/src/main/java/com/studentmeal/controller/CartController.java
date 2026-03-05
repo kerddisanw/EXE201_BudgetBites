@@ -27,13 +27,13 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCart());
     }
 
-    @PostMapping("/add")
-    @Operation(summary = "Thêm bữa ăn vào giỏ hàng")
+    @PostMapping("/items")
+    @Operation(summary = "Thêm 1 bữa ăn vào giỏ hàng")
     public ResponseEntity<CartItemDTO> addToCart(@RequestBody CartAddRequest request) {
         return ResponseEntity.ok(cartService.addToCart(request));
     }
 
-    @PostMapping("/add-batch")
+    @PostMapping("/items/batch")
     @Operation(summary = "Thêm nhiều bữa ăn vào giỏ hàng cùng lúc")
     public ResponseEntity<List<CartItemDTO>> addToCartBatch(@RequestBody CartBatchAddRequest request) {
         return ResponseEntity.ok(cartService.addMultipleToCart(request));
@@ -46,14 +46,14 @@ public class CartController {
         return ResponseEntity.ok(Map.of("message", "Đã xóa khỏi giỏ hàng"));
     }
 
-    @DeleteMapping("/clear")
+    @DeleteMapping("/items")
     @Operation(summary = "Xóa toàn bộ giỏ hàng")
     public ResponseEntity<Map<String, String>> clearCart() {
         cartService.clearCart();
         return ResponseEntity.ok(Map.of("message", "Đã xóa toàn bộ giỏ hàng"));
     }
 
-    @PostMapping("/checkout")
+    @PostMapping("/orders")
     @Operation(summary = "Checkout — tạo các MealOrder từ giỏ hàng cho 1 Subscription đang ACTIVE")
     public ResponseEntity<List<MealOrderDTO>> checkout(@RequestParam Long subscriptionId) {
         return ResponseEntity.ok(cartService.checkout(subscriptionId));

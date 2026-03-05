@@ -103,6 +103,7 @@ public class MealPackageService {
     private MealPackageDTO convertToDTO(MealPackage mealPackage) {
         return new MealPackageDTO(
                 mealPackage.getId(),
+                mealPackage.getPartner() != null ? mealPackage.getPartner().getId() : null,
                 mealPackage.getName(),
                 mealPackage.getDescription(),
                 mealPackage.getPrice(),

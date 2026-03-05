@@ -30,7 +30,7 @@ public class MenuController {
         return ResponseEntity.ok(menuService.getMenuById(id));
     }
 
-    @GetMapping("/partner/{partnerId}")
+    @GetMapping("/partners/{partnerId}")
     public ResponseEntity<List<WeeklyMenuDTO>> getMenusByPartner(@PathVariable Long partnerId) {
         return ResponseEntity.ok(menuService.getMenusByPartner(partnerId));
     }
@@ -56,10 +56,10 @@ public class MenuController {
      * GET /api/menus/partner/1/day/MONDAY → Thứ 2 có gì ăn ở quán 1?
      * GET /api/menus/partner/1/day/WEDNESDAY → Thứ 4 có gì ăn?
      */
-    @GetMapping("/partner/{partnerId}/day/{day}")
+    @GetMapping("/partners/{partnerId}/items")
     public ResponseEntity<List<MenuItemDTO>> getMenuItemsByPartnerAndDay(
             @PathVariable Long partnerId,
-            @PathVariable MenuItem.DayOfWeek day) {
+            @RequestParam MenuItem.DayOfWeek day) {
         return ResponseEntity.ok(menuService.getMenuItemsByPartnerAndDay(partnerId, day));
     }
 
@@ -74,7 +74,7 @@ public class MenuController {
      * "WEDNESDAY": { "Lunch": [...] }
      * }
      */
-    @GetMapping("/partner/{partnerId}/schedule")
+    @GetMapping("/partners/{partnerId}/schedule")
     public ResponseEntity<WeeklyScheduleDTO> getWeeklySchedule(@PathVariable Long partnerId) {
         return ResponseEntity.ok(menuService.getWeeklySchedule(partnerId));
     }

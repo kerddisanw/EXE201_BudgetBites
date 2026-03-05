@@ -21,7 +21,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/process")
+    @PostMapping
     @Operation(summary = "Process a payment for a subscription")
     public ResponseEntity<Payment> processPayment(
             @RequestParam Long subscriptionId,
@@ -30,7 +30,7 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.processPayment(subscriptionId, method, transactionCode));
     }
 
-    @GetMapping("/subscription/{subscriptionId}")
+    @GetMapping("/subscriptions/{subscriptionId}")
     @Operation(summary = "Get payments for a specific subscription")
     public ResponseEntity<List<Payment>> getPaymentsBySubscription(@PathVariable Long subscriptionId) {
         return ResponseEntity.ok(paymentService.getPaymentsBySubscription(subscriptionId));

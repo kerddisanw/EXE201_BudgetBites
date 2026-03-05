@@ -16,7 +16,7 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-    @GetMapping("/partner/{partnerId}")
+    @GetMapping("/partners/{partnerId}")
     public ResponseEntity<List<FeedbackDTO>> getFeedbacksByPartner(@PathVariable Long partnerId) {
         return ResponseEntity.ok(feedbackService.getFeedbacksByPartner(partnerId));
     }
