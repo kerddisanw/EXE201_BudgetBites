@@ -35,6 +35,10 @@ public class MealPartner {
 
     private String imageUrl;
 
+    // Tọa độ GPS quán ăn (dùng cho tính năng tracking)
+    private Double latitude;
+    private Double longitude;
+
     @Column(nullable = false)
     private Boolean active = false;
 
