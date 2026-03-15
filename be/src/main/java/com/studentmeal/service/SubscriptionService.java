@@ -97,6 +97,13 @@ public class SubscriptionService {
         }
 
         @Transactional(readOnly = true)
+        public List<SubscriptionDTO> getAllActiveSubscriptions() {
+                return subscriptionRepository.findByStatus(Subscription.SubscriptionStatus.ACTIVE).stream()
+                                .map(this::convertToDTO)
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional(readOnly = true)
         public SubscriptionDTO getSubscriptionById(Long id) {
                 Subscription subscription = subscriptionRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
