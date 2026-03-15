@@ -43,6 +43,12 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionService.getAllSubscriptions());
     }
 
+    @GetMapping("/active")
+    @Operation(summary = "Get all active subscriptions (Public API)")
+    public ResponseEntity<List<SubscriptionDTO>> getAllActiveSubscriptions() {
+        return ResponseEntity.ok(subscriptionService.getAllActiveSubscriptions());
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get subscription by ID")
     public ResponseEntity<SubscriptionDTO> getSubscriptionById(@PathVariable Long id) {
