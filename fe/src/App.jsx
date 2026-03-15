@@ -11,6 +11,7 @@ import Support from './pages/Support';
 import Account from './pages/Account';
 import Partners from './pages/Partners';
 import PartnerMeals from './pages/PartnerMeals';
+import Cart from './pages/Cart';
 import AppLayout from './components/AppLayout';
 
 function PrivateRoute({ children }) {
@@ -128,6 +129,16 @@ function App() {
                         <PrivateRoute>
                             <AppLayout>
                                 <Account />
+                            </AppLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/cart"
+                    element={
+                        <PrivateRoute>
+                            <AppLayout>
+                                <Cart />
                             </AppLayout>
                         </PrivateRoute>
                     }
