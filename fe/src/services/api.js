@@ -3,6 +3,8 @@ import config from '../config/config';
 
 const api = axios.create({
     baseURL: config.API_URL,
+    // Prevent "loading forever" when backend/network is unreachable.
+    timeout: 20000,
     headers: {
         'Content-Type': 'application/json'
     }
