@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 function PaymentCancel() {
@@ -9,28 +9,12 @@ function PaymentCancel() {
         localStorage.removeItem('bb_checkout_subscription_id');
     }, []);
 
-    const details = useMemo(() => {
-        const params = new URLSearchParams(location.search);
-        return {
-            orderCode: params.get('orderCode'),
-            status: params.get('status'),
-            code: params.get('code'),
-            desc: params.get('desc'),
-        };
-    }, [location.search]);
-
     return (
         <div className="partners-page">
             <div className="partners-header">
                 <h1>Thanh toán đã bị hủy</h1>
                 <p>
-                    {details.orderCode
-                        ? `Đơn hàng ${details.orderCode} chưa được thanh toán thành công.`
-                        : 'Bạn đã hủy quá trình thanh toán.'}
-                </p>
-                <p style={{ opacity: 0.8 }}>
-                    {details.status ? `Trạng thái: ${details.status}` : ''}
-                    {details.desc ? ` - ${details.desc}` : ''}
+                    Giao dịch thanh toán chưa được hoàn tất. Bạn có thể thử lại hoặc chọn gói phù hợp để tiếp tục đặt bữa.
                 </p>
             </div>
 
@@ -69,9 +53,7 @@ function PaymentCancel() {
                             Thanh toán không hoàn tất
                         </h2>
                         <p style={{ margin: '10px 0 0', color: '#444', lineHeight: 1.6 }}>
-                            {details.desc
-                                ? details.desc
-                                : 'Không có giao dịch thanh toán thành công. Bạn có thể thử lại hoặc chọn gói phù hợp trước khi thanh toán.'}
+                            Không có giao dịch thanh toán thành công. Vui lòng thử lại hoặc chọn lại gói & thanh toán.
                         </p>
                     </div>
                 </div>
