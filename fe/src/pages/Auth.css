@@ -1,10 +1,63 @@
+.auth-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: stretch;
+    min-height: calc(100vh - 210px);
+    padding: 2.5rem 3rem;
+    gap: 3rem;
+    background: radial-gradient(circle at top left, #ffedd5 0, transparent 45%),
+        radial-gradient(circle at bottom right, #dbeafe 0, transparent 50%), #ffffff;
+}
+
 .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 210px); /* space for header + footer; page can scroll if needed */
-    padding: 2rem;
-    background: #ffffff;
+}
+
+.auth-hero {
+    align-self: center;
+    max-width: 540px;
+}
+
+.auth-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(249, 115, 22, 0.08);
+    color: #c2410c;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+}
+
+.auth-hero-title {
+    font-size: 2.1rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.75rem;
+}
+
+.auth-hero-subtitle {
+    font-size: 0.98rem;
+    color: #4b5563;
+    margin-bottom: 1.25rem;
+}
+
+.auth-hero-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    color: #374151;
+    font-size: 0.92rem;
 }
 
 .auth-card {
@@ -15,6 +68,21 @@
     box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
     width: 100%;
     max-width: 450px;
+}
+
+@keyframes auth-card-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.auth-card-inner {
+    animation: auth-card-fade-in 260ms ease-out;
 }
 
 .auth-header {
@@ -210,4 +278,49 @@
 
 .google-btn-wrapper>div {
     width: 100% !important;
+}
+
+/* Generic full-page spinner for loading states */
+.bb-page-loading {
+    min-height: calc(100vh - 120px);
+    padding: 32px 28px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bb-spinner {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 3px solid rgba(15, 23, 42, 0.12);
+    border-top-color: #f97316;
+    animation: bb-spin 0.7s linear infinite;
+}
+
+@keyframes bb-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 900px) {
+    .auth-page {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1.5rem 1.25rem;
+        gap: 1.75rem;
+    }
+
+    .auth-hero {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .auth-hero-title {
+        font-size: 1.7rem;
+    }
+
+    .auth-card {
+        padding: 1.75rem 1.5rem 2rem;
+    }
 }

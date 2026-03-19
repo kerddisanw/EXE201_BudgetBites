@@ -159,7 +159,11 @@ const PartnerMeals = () => {
     }, [menus]);
 
     if (loading) {
-        return <div className="partners-page partners-page-loading">Đang tải thực đơn...</div>;
+        return (
+            <div className="partners-page partners-page-loading bb-page-loading">
+                <div className="bb-spinner" />
+            </div>
+        );
     }
 
     if (error) {
@@ -168,25 +172,6 @@ const PartnerMeals = () => {
 
     return (
         <div className="partners-page">
-            <div className="partners-steps">
-                <div className="partners-step">
-                    <span className="partners-step-number">1</span>
-                    <span className="partners-step-label">Chọn quán ăn đối tác</span>
-                </div>
-                <div className="partners-step partners-step-active">
-                    <span className="partners-step-number">2</span>
-                    <span className="partners-step-label">Chọn bữa ăn</span>
-                </div>
-                <div className="partners-step">
-                    <span className="partners-step-number">3</span>
-                    <span className="partners-step-label">Thanh toán</span>
-                </div>
-                <div className="partners-step">
-                    <span className="partners-step-number">4</span>
-                    <span className="partners-step-label">Hoàn tất đặt bữa ăn</span>
-                </div>
-            </div>
-
             <div className="partners-header">
                 <h1>Chọn lịch ăn uống</h1>
                 <p>Thực đơn của {partner?.name} theo từng ngày và khung giờ.</p>

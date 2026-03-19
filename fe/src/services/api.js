@@ -26,11 +26,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const status = error.response?.status;
+        const requestUrl = error.config?.url || '';
+
+        // For protected APIs: if token is invalid/expired, force logout
+        if (status === 401 && !requestUrl.includes('/auth/login')) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';
         }
+
+        // For login (and other) errors, let the caller handle the message
         return Promise.reject(error);
     }
 );
@@ -74,8 +80,14 @@ export const cartService = {
 
 export const subscriptionService = {
     createSubscription: (data) => api.post('/subscriptions', data),
-    getMySubscriptions: () => api.get('/subscriptions/my'),
+    getMySubscriptions: () => api.get('/subscriptions/me'),
     getSubscriptionById: (id) => api.get(`/subscriptions/${id}`)
+};
+
+export const paymentService = {
+    createPayOSCheckout: (subscriptionId) =>
+        api.post(`/payments/payos/checkout?subscriptionId=${subscriptionId}`),
+    createCartPayOSCheckout: () => api.post('/payments/payos/checkout-cart')
 };
 
 export default api;

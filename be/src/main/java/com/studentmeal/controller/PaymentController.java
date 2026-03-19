@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.List;
 
 @RestController
@@ -28,6 +30,26 @@ public class PaymentController {
             @RequestParam String method,
             @RequestParam String transactionCode) {
         return ResponseEntity.ok(paymentService.processPayment(subscriptionId, method, transactionCode));
+    }
+
+    @PostMapping("/payos/checkout")
+    @Operation(summary = "Create PayOS checkout session for a subscription")
+    public ResponseEntity<com.studentmeal.service.PayOSService.PayOSCheckoutResponse> createPayOSCheckout(
+            @RequestParam Long subscriptionId) {
+        return ResponseEntity.ok(paymentService.createPayOSCheckout(subscriptionId));
+    }
+
+    @PostMapping("/payos/checkout-cart")
+    @Operation(summary = "Create PayOS checkout session from current cart total (no package required)")
+    public ResponseEntity<com.studentmeal.service.PaymentService.CartPayOSCheckoutResponse> createPayOSCheckoutFromCart() {
+        return ResponseEntity.ok(paymentService.createCartPayOSCheckoutFromCart());
+    }
+
+    @PostMapping("/payos/webhook")
+    @Operation(summary = "PayOS webhook — update payment status")
+    public ResponseEntity<Void> payosWebhook(@RequestBody JsonNode payload) {
+        paymentService.handlePayOSWebhook(payload);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/subscriptions/{subscriptionId}")

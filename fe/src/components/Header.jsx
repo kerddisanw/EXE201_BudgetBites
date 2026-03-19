@@ -44,6 +44,9 @@ const Header = () => {
                     <NavLink to="/mainpage" className={navLinkClass}>
                         Trang chủ
                     </NavLink>
+                    <NavLink to="/packages" className={navLinkClass}>
+                        Gói
+                    </NavLink>
                     <NavLink to="/partners" className={navLinkClass}>
                         Đặt bữa ăn
                     </NavLink>

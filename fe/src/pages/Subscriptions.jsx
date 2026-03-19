@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { subscriptionService, authService } from '../services/api';
+import { subscriptionService } from '../services/api';
 import './Subscriptions.css';
 
 function Subscriptions() {
@@ -18,66 +18,110 @@ function Subscriptions() {
             const response = await subscriptionService.getMySubscriptions();
             setSubscriptions(response.data);
         } catch (err) {
-            setError('Failed to load subscriptions');
+            setError(err.response?.data?.message || 'Không thể tải danh sách gói đăng ký.');
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleLogout = () => {
-        authService.logout();
-        navigate('/login');
     };
 
     const getStatusClass = (status) => {
         return `status-badge status-${status.toLowerCase()}`;
     };
 
-    if (loading) return <div className="loading">Loading...</div>;
+    const formatDate = (value) => {
+        if (!value) return '-';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        return d.toLocaleDateString('vi-VN');
+    };
+
+    const formatMoney = (value) => {
+        if (value == null) return '0₫';
+        const n = Number(value);
+        if (!Number.isFinite(n)) return `${value}₫`;
+        return `${n.toLocaleString('vi-VN')}₫`;
+    };
+
+    if (loading) {
+        return (
+            <div className="subscriptions-page subscriptions-page-loading bb-page-loading">
+                <div className="bb-spinner" />
+            </div>
+        );
+    }
 
     return (
-        <div className="subscriptions-container">
-            <nav className="navbar">
-                <div className="nav-brand">Student Meal Combo</div>
-                <div className="nav-links">
-                    <Link to="/dashboard">Dashboard</Link>
-                    <Link to="/packages">Packages</Link>
-                    <Link to="/subscriptions">My Subscriptions</Link>
-                    <button onClick={handleLogout} className="logout-btn">Logout</button>
+        <div className="subscriptions-page">
+            <section className="subscriptions-header">
+                <div>
+                    <h1>Gói đăng ký của bạn</h1>
+                    <p>
+                        Xem nhanh các gói BudgetBites hiện tại, trạng thái và thời gian hiệu lực. Bạn
+                        có thể đăng ký thêm gói mới bất kỳ lúc nào.
+                    </p>
                 </div>
-            </nav>
+                <button
+                    type="button"
+                    className="subscriptions-new-btn"
+                    onClick={() => navigate('/packages')}
+                >
+                    + Đăng ký gói mới
+                </button>
+            </section>
 
-            <div className="subscriptions-content">
-                <h1>My Subscriptions</h1>
-                {error && <div className="error-message">{error}</div>}
+            {error && <div className="subscriptions-error">{error}</div>}
 
-                {subscriptions.length === 0 ? (
-                    <div className="no-subscriptions">
-                        <p>You don't have any subscriptions yet.</p>
-                        <Link to="/packages" className="browse-btn">Browse Packages</Link>
+            {subscriptions.length === 0 ? (
+                <div className="no-subscriptions">
+                    <div className="no-subscriptions-card">
+                        <div className="no-subscriptions-title">Bạn chưa có gói đăng ký nào</div>
+                        <div className="no-subscriptions-sub">
+                            Hãy bắt đầu bằng cách chọn một gói phù hợp với lịch học và ngân sách.
+                        </div>
+                        <Link to="/packages" className="browse-btn">
+                            Chọn gói bữa ăn
+                        </Link>
                     </div>
-                ) : (
-                    <div className="subscriptions-list">
-                        {subscriptions.map((sub) => (
-                            <div key={sub.id} className="subscription-card">
-                                <div className="subscription-header">
-                                    <h3>{sub.packageName}</h3>
-                                    <span className={getStatusClass(sub.status)}>{sub.status}</span>
+                </div>
+            ) : (
+                <div className="subscriptions-list">
+                    {subscriptions.map((sub) => (
+                        <article key={sub.id} className="subscription-card">
+                            <header className="subscription-header">
+                                <div>
+                                    <h2 className="subscription-name">{sub.packageName}</h2>
+                                    <div className="subscription-dates">
+                                        <span>
+                                            {formatDate(sub.startDate)} → {formatDate(sub.endDate)}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="subscription-details">
-                                    <p><strong>Start Date:</strong> {new Date(sub.startDate).toLocaleDateString()}</p>
-                                    <p><strong>End Date:</strong> {new Date(sub.endDate).toLocaleDateString()}</p>
-                                    <p><strong>Total Amount:</strong> ${sub.totalAmount}</p>
-                                    {sub.notes && <p><strong>Notes:</strong> {sub.notes}</p>}
-                                    <p className="subscription-date">
-                                        Created: {new Date(sub.createdAt).toLocaleDateString()}
-                                    </p>
+                                <span className={getStatusClass(sub.status || '')}>
+                                    {sub.status}
+                                </span>
+                            </header>
+
+                            <div className="subscription-body">
+                                <div className="subscription-row">
+                                    <span className="label">Tổng chi phí</span>
+                                    <span className="value">{formatMoney(sub.totalAmount)}</span>
+                                </div>
+                                {sub.notes ? (
+                                    <div className="subscription-notes">
+                                        <span className="label">Ghi chú</span>
+                                        <span className="value">{sub.notes}</span>
+                                    </div>
+                                ) : null}
+                                <div className="subscription-footer">
+                                    <span className="created-at">
+                                        Tạo lúc: {formatDate(sub.createdAt)}
+                                    </span>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                        </article>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

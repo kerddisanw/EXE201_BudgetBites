@@ -1,7 +1,8 @@
 .partners-page {
     min-height: calc(100vh - 120px);
     padding: 32px 28px 28px;
-    background: #f9fafb;
+    background: radial-gradient(circle at top left, #ffedd5 0, transparent 45%),
+        radial-gradient(circle at bottom right, #dbeafe 0, transparent 50%), #f9fafb;
 }
 
 .partners-steps {
@@ -217,6 +218,15 @@
     margin: 40px auto 0;
     text-align: center;
     color: #6b7280;
+}
+
+.partners-page.partners-page-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: none;
+    margin: 0;
+    padding: 32px 28px 28px;
 }
 
 .partners-page-error {

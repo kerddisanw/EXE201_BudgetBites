@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { packageService, subscriptionService } from '../services/api';
-import { authService } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { packageService, subscriptionService, paymentService } from '../services/api';
 import './Packages.css';
 
 function Packages() {
@@ -9,6 +8,7 @@ function Packages() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [busyPackageId, setBusyPackageId] = useState(null);
 
     useEffect(() => {
         fetchPackages();
@@ -27,62 +27,108 @@ function Packages() {
 
     const handleSubscribe = async (packageId) => {
         try {
+            setBusyPackageId(packageId);
             const startDate = new Date().toISOString().split('T')[0];
-            await subscriptionService.createSubscription({
+            const created = await subscriptionService.createSubscription({
                 packageId,
                 startDate,
                 notes: ''
             });
-            alert('Subscription created successfully!');
-            navigate('/subscriptions');
+
+            // Redirect to payOS checkout
+            const checkoutRes = await paymentService.createPayOSCheckout(created.data.id);
+            const checkoutUrl = checkoutRes.data?.checkoutUrl;
+            if (!checkoutUrl) {
+                throw new Error('Không thể tạo link thanh toán PayOS.');
+            }
+
+            window.location.href = checkoutUrl;
         } catch (err) {
-            alert('Failed to create subscription: ' + (err.response?.data?.message || 'Unknown error'));
+            const msg =
+                err.response?.data?.message ||
+                err.message ||
+                'Không thể tạo subscription hoặc link thanh toán. Vui lòng thử lại.';
+            alert(msg);
+            // fallback to list so user can see subscription state
+            navigate('/subscriptions');
+        } finally {
+            setBusyPackageId(null);
         }
     };
 
-    const handleLogout = () => {
-        authService.logout();
-        navigate('/login');
-    };
-
-    if (loading) return <div className="loading">Loading...</div>;
+    if (loading) {
+        return (
+            <div className="packages-page packages-page-loading bb-page-loading">
+                <div className="bb-spinner" />
+            </div>
+        );
+    }
 
     return (
-        <div className="packages-container">
-            <nav className="navbar">
-                <div className="nav-brand">Student Meal Combo</div>
-                <div className="nav-links">
-                    <Link to="/dashboard">Dashboard</Link>
-                    <Link to="/packages">Packages</Link>
-                    <Link to="/subscriptions">My Subscriptions</Link>
-                    <button onClick={handleLogout} className="logout-btn">Logout</button>
+        <div className="packages-page">
+            <section className="packages-header">
+                <div>
+                    <h1>Gói bữa ăn BudgetBites</h1>
+                    <p>
+                        Chọn gói bữa ăn phù hợp với lịch học và ngân sách. Bạn có thể thay đổi hoặc
+                        hủy bất cứ lúc nào.
+                    </p>
                 </div>
-            </nav>
+            </section>
 
-            <div className="packages-content">
-                <h1>Meal Packages</h1>
-                {error && <div className="error-message">{error}</div>}
-                <div className="packages-grid">
-                    {packages.map((pkg) => (
-                        <div key={pkg.id} className="package-card">
-                            <h3>{pkg.name}</h3>
-                            <p className="package-description">{pkg.description}</p>
-                            <div className="package-details">
-                                <p><strong>Price:</strong> ${pkg.price}</p>
-                                <p><strong>Duration:</strong> {pkg.durationDays} days</p>
-                                <p><strong>Meals/Day:</strong> {pkg.mealsPerDay}</p>
-                                <p><strong>Type:</strong> {pkg.packageType}</p>
-                                {pkg.partnerName && <p><strong>Partner:</strong> {pkg.partnerName}</p>}
+            {error && <div className="packages-error">{error}</div>}
+
+            <div className="packages-grid">
+                {packages.map((pkg) => (
+                    <article key={pkg.id} className="package-card">
+                        <header className="package-card-header">
+                            <h2 className="package-name">{pkg.name}</h2>
+                            <div className="package-price">
+                                <span className="price-main">
+                                    {pkg.price?.toLocaleString('vi-VN')}₫
+                                </span>
+                                {pkg.durationDays ? (
+                                    <span className="price-sub">
+                                        / {pkg.durationDays} ngày
+                                    </span>
+                                ) : null}
                             </div>
-                            <button
-                                onClick={() => handleSubscribe(pkg.id)}
-                                className="subscribe-btn"
-                            >
-                                Subscribe Now
-                            </button>
+                        </header>
+
+                        <p className="package-description">
+                            {pkg.description || 'Gói bữa ăn tiện lợi dành cho sinh viên bận rộn.'}
+                        </p>
+
+                        <div className="package-details">
+                            {pkg.mealsPerDay != null && (
+                                <p>
+                                    <span className="detail-label">Số bữa mỗi ngày</span>
+                                    <span className="detail-value">{pkg.mealsPerDay}</span>
+                                </p>
+                            )}
+                            {pkg.packageType && (
+                                <p>
+                                    <span className="detail-label">Loại gói</span>
+                                    <span className="detail-value">{pkg.packageType}</span>
+                                </p>
+                            )}
+                            {pkg.partnerName && (
+                                <p>
+                                    <span className="detail-label">Đối tác chính</span>
+                                    <span className="detail-value">{pkg.partnerName}</span>
+                                </p>
+                            )}
                         </div>
-                    ))}
-                </div>
+
+                        <button
+                            onClick={() => handleSubscribe(pkg.id)}
+                            className="subscribe-btn"
+                            disabled={busyPackageId === pkg.id}
+                        >
+                            {busyPackageId === pkg.id ? 'Đang tạo thanh toán...' : 'Đăng ký gói này'}
+                        </button>
+                    </article>
+                ))}
             </div>
         </div>
     );

@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/api/auth/**").permitAll()
                         .requestMatchers("/api/health").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/payments/payos/webhook").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/admin/partners",
                                 "/api/admin/partners/**")
                         .permitAll()

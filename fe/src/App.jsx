@@ -13,6 +13,8 @@ import Partners from './pages/Partners';
 import PartnerMeals from './pages/PartnerMeals';
 import Cart from './pages/Cart';
 import AppLayout from './components/AppLayout';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 
 function PrivateRoute({ children }) {
     const token = localStorage.getItem('token');
@@ -25,19 +27,11 @@ function App() {
             <Routes>
                 <Route
                     path="/login"
-                    element={
-                        <AppLayout>
-                            <Login />
-                        </AppLayout>
-                    }
+                    element={<Login />}
                 />
                 <Route
                     path="/register"
-                    element={
-                        <AppLayout>
-                            <Register />
-                        </AppLayout>
-                    }
+                    element={<Register />}
                 />
                 <Route
                     path="/mainpage"
@@ -81,6 +75,22 @@ function App() {
                                 <PartnerMeals />
                             </AppLayout>
                         </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/payment-success"
+                    element={
+                        <AppLayout>
+                            <PaymentSuccess />
+                        </AppLayout>
+                    }
+                />
+                <Route
+                    path="/payment-cancel"
+                    element={
+                        <AppLayout>
+                            <PaymentCancel />
+                        </AppLayout>
                     }
                 />
                 <Route

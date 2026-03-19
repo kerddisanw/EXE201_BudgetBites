@@ -115,10 +115,6 @@ public class CartService {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
 
-        if (subscription.getStatus() != Subscription.SubscriptionStatus.ACTIVE) {
-            throw new RuntimeException("Subscription phải ở trạng thái ACTIVE mới có thể đặt bữa");
-        }
-
         List<MealOrder> orders = cartItems.stream().map(cartItem -> {
             MealOrder order = new MealOrder();
             order.setSubscription(subscription);
