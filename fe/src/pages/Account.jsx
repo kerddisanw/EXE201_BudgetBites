@@ -1,6 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { authService, subscriptionService } from '../services/api';
+import { useNavigate, NavLink, Link } from 'react-router-dom';
+import {
+    User,
+    Package,
+    Truck,
+    Gift,
+    Star,
+    Crown,
+    CreditCard,
+    Bell,
+    Settings,
+    StarIcon,
+    LogOut,
+    Box,
+    ChevronRight,
+    X
+} from 'lucide-react';
+import { authService, subscriptionService, orderService } from '../services/api';
 import './Profile.css';
 
 const Account = () => {
@@ -9,6 +25,8 @@ const Account = () => {
     const [error, setError] = useState('');
     const [subs, setSubs] = useState([]);
     const [subsError, setSubsError] = useState('');
+    const [orders, setOrders] = useState([]);
+    const [cancellingSubId, setCancellingSubId] = useState(null);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -35,10 +53,26 @@ const Account = () => {
                 if (!isMounted) return;
                 setProfile(profileRes.data);
                 const list = Array.isArray(subsRes.data) ? subsRes.data : [];
+                list.sort((a, b) => {
+                    const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                    const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                    return db - da; // latest first
+                });
                 setSubs(list);
-                if (!Array.isArray(subsRes.data)) {
-                    setSubsError('Dữ liệu gói đăng ký không hợp lệ. Vui lòng thử lại.');
-                }
+
+                // Fetch orders from ACTIVE subscriptions
+                const activeSubs = list.filter((s) => (s.status || '').toUpperCase() === 'ACTIVE');
+                const orderPromises = activeSubs.map((s) =>
+                    orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
+                );
+                const orderResults = await Promise.all(orderPromises);
+                const allOrders = orderResults.flatMap((r) => (Array.isArray(r.data) ? r.data : []));
+                allOrders.sort((a, b) => {
+                    const da = a.orderDate ? new Date(a.orderDate) : new Date(0);
+                    const db = b.orderDate ? new Date(b.orderDate) : new Date(0);
+                    return db - da;
+                });
+                setOrders(allOrders);
             } catch (err) {
                 if (isMounted) {
                     setError(
@@ -60,7 +94,65 @@ const Account = () => {
         };
     }, []);
 
+    const refetchSubsAndOrders = async () => {
+        try {
+            const subsRes = await subscriptionService.getMySubscriptions();
+            const list = Array.isArray(subsRes.data) ? subsRes.data : [];
+            list.sort((a, b) => {
+                const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return db - da; // latest first
+            });
+            setSubs(list);
+            setSubsError('');
+            const activeSubs = list.filter((s) => (s.status || '').toUpperCase() === 'ACTIVE');
+            const orderPromises = activeSubs.map((s) =>
+                orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
+            );
+            const orderResults = await Promise.all(orderPromises);
+            const allOrders = orderResults.flatMap((r) => (Array.isArray(r.data) ? r.data : []));
+            allOrders.sort((a, b) => {
+                const da = a.orderDate ? new Date(a.orderDate) : new Date(0);
+                const db = b.orderDate ? new Date(b.orderDate) : new Date(0);
+                return db - da;
+            });
+            setOrders(allOrders);
+        } catch {
+            // ignore
+        }
+    };
+
+    const canCancelSub = (status) => {
+        const s = (status || '').toUpperCase();
+        return s === 'PENDING' || s === 'ACTIVE';
+    };
+
+    const handleCancelSubscription = async () => {
+        const sub = subs[0];
+        if (!sub || !canCancelSub(sub.status)) return;
+        if (
+            !window.confirm(
+                `Bạn có chắc muốn hủy gói "${sub.packageName || 'BudgetBites'}"?`
+            )
+        )
+            return;
+        setCancellingSubId(sub.id);
+        setSubsError('');
+        try {
+            await subscriptionService.cancelSubscription(sub.id);
+            await refetchSubsAndOrders();
+        } catch (err) {
+            setSubsError(
+                err.response?.data?.message || 'Không thể hủy gói đăng ký. Vui lòng thử lại.'
+            );
+        } finally {
+            setCancellingSubId(null);
+        }
+    };
+
     const latestSub = subs[0];
+    const recentOrders = orders.slice(0, 5);
+    const totalOrders = orders.length;
 
     const formatDate = (v) => {
         if (!v) return '-';
@@ -69,16 +161,48 @@ const Account = () => {
         return d.toLocaleDateString('vi-VN');
     };
 
+    const formatTimeLabel = (v) => {
+        if (!v) return '';
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return '';
+        const today = new Date();
+        const isToday =
+            d.getDate() === today.getDate() &&
+            d.getMonth() === today.getMonth() &&
+            d.getFullYear() === today.getFullYear();
+        return isToday ? 'Hôm nay' : formatDate(v);
+    };
+
     const formatMoney = (value) => {
-        if (value == null) return '0₫';
+        if (value == null) return '—';
         const n = Number(value);
-        if (!Number.isFinite(n)) return `${value}₫`;
+        if (!Number.isFinite(n)) return '—';
         return `${n.toLocaleString('vi-VN')}₫`;
     };
 
+    const getStatusLabel = (status) => {
+        const s = (status || '').toUpperCase();
+        if (s === 'DELIVERED') return 'Hoàn thành';
+        if (s === 'PREPARING') return 'Đang chuẩn bị';
+        if (s === 'PENDING') return 'Chờ xử lý';
+        if (s === 'CANCELLED') return 'Đã hủy';
+        return status || '—';
+    };
+
+    const getStatusClass = (status) => {
+        const s = (status || '').toUpperCase();
+        if (s === 'DELIVERED') return 'account-status-completed';
+        if (s === 'PREPARING' || s === 'PENDING') return 'account-status-delivering';
+        if (s === 'CANCELLED') return 'account-status-cancelled';
+        return '';
+    };
+
+    // Placeholder for points (no backend yet)
+    const points = totalOrders * 100;
+
     if (loading) {
         return (
-            <div className="profile-page bb-page-loading">
+            <div className="account-page account-loading">
                 <div className="bb-spinner" />
             </div>
         );
@@ -86,8 +210,8 @@ const Account = () => {
 
     if (error) {
         return (
-            <div className="profile-page">
-                <div className="profile-card profile-card-error">{error}</div>
+            <div className="account-page">
+                <div className="account-error-card">{error}</div>
             </div>
         );
     }
@@ -96,126 +220,233 @@ const Account = () => {
         return null;
     }
 
+    const navLinkClass = ({ isActive }) =>
+        'account-nav-item' + (isActive ? ' account-nav-active' : '');
+
     return (
-        <div className="profile-page">
-            <div className="profile-card">
-                <div className="profile-header">
-                    <div className="profile-avatar">
+        <div className="account-page">
+            <aside className="account-sidebar">
+                <div className="account-profile-card">
+                    <div className="account-avatar">
                         {profile.fullName?.charAt(0)?.toUpperCase() || '?'}
                     </div>
-                    <div>
-                        <h1 className="profile-name">{profile.fullName}</h1>
-                        <p className="profile-role">
-                            {profile.role === 'ADMIN' ? 'Quản trị viên' : 'Khách hàng'}
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        className="profile-logout-btn"
-                        onClick={handleLogout}
-                    >
-                        Đăng xuất
-                    </button>
-                </div>
-
-                <div className="profile-section">
-                    <h2 className="profile-section-title">Thông tin cá nhân</h2>
-                    <div className="profile-grid">
-                        <div className="profile-field">
-                            <span className="profile-label">Email</span>
-                            <span className="profile-value">{profile.email}</span>
-                        </div>
-                        <div className="profile-field">
-                            <span className="profile-label">Số điện thoại</span>
-                            <span className="profile-value">
-                                {profile.phoneNumber || 'Chưa cập nhật'}
-                            </span>
-                        </div>
-                        <div className="profile-field">
-                            <span className="profile-label">Mã sinh viên</span>
-                            <span className="profile-value">
-                                {profile.studentId || 'Chưa cập nhật'}
-                            </span>
-                        </div>
-                        <div className="profile-field">
-                            <span className="profile-label">Trường</span>
-                            <span className="profile-value">
-                                {profile.university || 'Chưa cập nhật'}
-                            </span>
-                        </div>
-                        <div className="profile-field profile-field-full">
-                            <span className="profile-label">Địa chỉ</span>
-                            <span className="profile-value">
-                                {profile.address || 'Chưa cập nhật'}
-                            </span>
-                        </div>
+                    <div className="account-profile-info">
+                        <span className="account-user-name">{profile.fullName}</span>
+                        <span className="account-vip-badge">
+                            <Star size={12} />
+                            Thành viên VIP
+                        </span>
                     </div>
                 </div>
 
-                <div className="profile-section">
-                    <h2 className="profile-section-title">Gói đăng ký hiện tại</h2>
-                    {subsError && <div className="profile-subs-error">{subsError}</div>}
-                    {!subsError && !latestSub && (
-                        <div className="profile-subs-empty">
-                            <div>Hiện bạn chưa có gói BudgetBites nào.</div>
+                <nav className="account-nav">
+                    <NavLink to="/account" end className={navLinkClass}>
+                        <User size={18} />
+                        <span>Tổng quan</span>
+                    </NavLink>
+                    <NavLink to="/subscriptions" className={navLinkClass}>
+                        <Package size={18} />
+                        <span>Đơn hàng của bạn</span>
+                    </NavLink>
+                    <NavLink to="/subscriptions" className={navLinkClass}>
+                        <Truck size={18} />
+                        <span>Theo dõi đơn hàng</span>
+                    </NavLink>
+                    <NavLink to="/packages" className={navLinkClass}>
+                        <Gift size={18} />
+                        <span>Khuyến mãi của tôi</span>
+                    </NavLink>
+                    <Link to="/account" className="account-nav-item">
+                        <Star size={18} />
+                        <span>Điểm tích lũy</span>
+                    </Link>
+                    <Link to="/account" className="account-nav-item">
+                        <Crown size={18} />
+                        <span>BudgetBites VIP</span>
+                    </Link>
+                    <NavLink to="/subscriptions" className={navLinkClass}>
+                        <CreditCard size={18} />
+                        <span>Liên kết thanh toán</span>
+                    </NavLink>
+                    <NavLink to="/support" className={navLinkClass}>
+                        <Bell size={18} />
+                        <span>Thông báo</span>
+                    </NavLink>
+                    <Link to="/account" className="account-nav-item">
+                        <Settings size={18} />
+                        <span>Quản lý hồ sơ</span>
+                    </Link>
+                    <NavLink to="/about" className={navLinkClass}>
+                        <StarIcon size={18} />
+                        <span>Đánh giá chúng tôi</span>
+                    </NavLink>
+                </nav>
+
+                <button
+                    type="button"
+                    className="account-logout-btn"
+                    onClick={handleLogout}
+                >
+                    <LogOut size={18} />
+                    <span>Đăng xuất</span>
+                </button>
+            </aside>
+
+            <main className="account-main">
+                <h1 className="account-greeting">Xin chào, {profile.fullName}!</h1>
+
+                <div className="account-stats">
+                    <div className="account-stat-card">
+                        <div className="account-stat-icon account-stat-orders">
+                            <Box size={24} />
+                        </div>
+                        <div className="account-stat-content">
+                            <span className="account-stat-value">{totalOrders}</span>
+                            <span className="account-stat-label">Đơn hàng</span>
+                        </div>
+                    </div>
+                    <div className="account-stat-card">
+                        <div className="account-stat-icon account-stat-points">
+                            <Star size={24} />
+                        </div>
+                        <div className="account-stat-content">
+                            <span className="account-stat-value">
+                                {points.toLocaleString('vi-VN')}
+                            </span>
+                            <span className="account-stat-label">Điểm tích lũy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section className="account-section">
+                    <div className="account-section-header">
+                        <h2>Đơn hàng gần đây</h2>
+                        <button
+                            type="button"
+                            className="account-view-all"
+                            onClick={() => navigate('/subscriptions')}
+                        >
+                            Xem tất cả <ChevronRight size={16} />
+                        </button>
+                    </div>
+
+                    {recentOrders.length === 0 ? (
+                        <div className="account-empty-orders">
+                            <Box size={40} strokeWidth={1.5} />
+                            <p>Bạn chưa có đơn hàng nào</p>
                             <button
                                 type="button"
-                                className="profile-subs-btn"
-                                onClick={() => navigate('/packages')}
+                                className="account-order-cta"
+                                onClick={() => navigate('/partners')}
                             >
-                                Chọn gói bữa ăn
+                                Đặt bữa ăn ngay
                             </button>
                         </div>
-                    )}
-                    {!subsError && latestSub && (
-                        <div className="profile-subs-card">
-                            <div className="profile-subs-header">
-                                <div>
-                                    <div className="profile-subs-name">
-                                        {latestSub.packageName || 'Gói BudgetBites'}
-                                    </div>
-                                    <div className="profile-subs-dates">
-                                        {formatDate(latestSub.startDate)} →{' '}
-                                        {formatDate(latestSub.endDate)}
-                                    </div>
-                                </div>
-                                <span
-                                    className={
-                                        'profile-subs-status status-badge status-' +
-                                        (latestSub.status || '').toLowerCase()
+                    ) : (
+                        <div className="account-order-list">
+                            {recentOrders.map((order) => (
+                                <div
+                                    key={order.id}
+                                    className="account-order-card"
+                                    onClick={() => navigate('/subscriptions')}
+                                    onKeyDown={(e) =>
+                                        e.key === 'Enter' && navigate('/subscriptions')
                                     }
+                                    role="button"
+                                    tabIndex={0}
                                 >
-                                    {latestSub.status}
-                                </span>
-                            </div>
-                            <div className="profile-subs-body">
-                                <div className="profile-subs-row">
-                                    <span className="label">Tổng chi phí</span>
-                                    <span className="value">
-                                        {formatMoney(latestSub.totalAmount)}
+                                    <div className="account-order-icon">
+                                        <Box size={20} />
+                                    </div>
+                                    <div className="account-order-body">
+                                        <span className="account-order-name">
+                                            {order.menuItemName || 'Bữa ăn'}
+                                        </span>
+                                        <span className="account-order-meta">
+                                            {`#BB${String(order.id || 0).padStart(6, '0')}`} ·{' '}
+                                            {formatTimeLabel(order.orderDate)}
+                                        </span>
+                                    </div>
+                                    <span
+                                        className={
+                                            'account-order-status ' + getStatusClass(order.status)
+                                        }
+                                    >
+                                        {getStatusLabel(order.status)}
+                                    </span>
+                                    <span className="account-order-price">
+                                        {formatMoney(order.price)}
                                     </span>
                                 </div>
-                                <div className="profile-subs-row">
-                                    <span className="label">Tạo lúc</span>
-                                    <span className="value">{formatDate(latestSub.createdAt)}</span>
-                                </div>
-                            </div>
-                            <div className="profile-subs-footer">
-                                <button
-                                    type="button"
-                                    className="profile-subs-link"
-                                    onClick={() => navigate('/subscriptions')}
-                                >
-                                    Xem tất cả gói đăng ký →
-                                </button>
-                            </div>
+                            ))}
                         </div>
                     )}
-                </div>
-            </div>
+                </section>
+
+                {latestSub && (
+                    <section className="account-section account-subscription-section">
+                        <h2 className="account-section-title">Gói đăng ký hiện tại</h2>
+                        {subsError && (
+                            <div className="account-subs-error">{subsError}</div>
+                        )}
+                        {!subsError && (
+                            <div className="account-subs-card">
+                                <div className="account-subs-header">
+                                    <div>
+                                        <div className="account-subs-name">
+                                            {latestSub.packageName || 'Gói BudgetBites'}
+                                        </div>
+                                        <div className="account-subs-dates">
+                                            {formatDate(latestSub.startDate)} →{' '}
+                                            {formatDate(latestSub.endDate)}
+                                        </div>
+                                    </div>
+                                    <span
+                                        className={
+                                            'account-subs-status status-' +
+                                            (latestSub.status || '').toLowerCase()
+                                        }
+                                    >
+                                        {latestSub.status}
+                                    </span>
+                                </div>
+                                <div className="account-subs-body">
+                                    <div className="account-subs-row">
+                                        <span className="label">Tổng chi phí</span>
+                                        <span className="value">
+                                            {formatMoney(latestSub.totalAmount)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="account-subs-actions">
+                                    {canCancelSub(latestSub.status) && (
+                                        <button
+                                            type="button"
+                                            className="account-subs-cancel-btn"
+                                            onClick={handleCancelSubscription}
+                                            disabled={cancellingSubId === latestSub.id}
+                                        >
+                                            <X size={16} />
+                                            {cancellingSubId === latestSub.id
+                                                ? 'Đang hủy...'
+                                                : 'Hủy gói'}
+                                        </button>
+                                    )}
+                                    <button
+                                        type="button"
+                                        className="account-subs-link"
+                                        onClick={() => navigate('/subscriptions')}
+                                    >
+                                        Xem tất cả gói đăng ký <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                )}
+            </main>
         </div>
     );
 };
 
 export default Account;
-

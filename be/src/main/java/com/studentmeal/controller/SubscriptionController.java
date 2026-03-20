@@ -63,4 +63,10 @@ public class SubscriptionController {
             @RequestParam Subscription.SubscriptionStatus status) {
         return ResponseEntity.ok(subscriptionService.updateSubscriptionStatus(id, status));
     }
+
+    @PostMapping("/{id}/cancel")
+    @Operation(summary = "Cancel my subscription")
+    public ResponseEntity<SubscriptionDTO> cancelMySubscription(@PathVariable Long id) {
+        return ResponseEntity.ok(subscriptionService.cancelMySubscription(id));
+    }
 }

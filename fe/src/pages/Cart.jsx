@@ -282,9 +282,6 @@ const Cart = () => {
                                 </span>
                             </div>
 
-                            <div className="cart-summary-note">
-                                Bạn có thể thanh toán với gói ACTIVE hiện có hoặc đăng ký gói mới để hệ thống tạo các món ăn trong tuần.
-                            </div>
 
                             <div className="cart-payment-section">
                                 {activeSubscriptions.length > 0 ? (
@@ -332,9 +329,7 @@ const Cart = () => {
                                                 ))
                                             )}
                                         </select>
-                                        <div className="cart-payment-hint">
-                                            Hệ thống sẽ tạo subscription mới và chuyển bạn đến trang thanh toán.
-                                        </div>
+                                    
                                     </>
                                 )}
 

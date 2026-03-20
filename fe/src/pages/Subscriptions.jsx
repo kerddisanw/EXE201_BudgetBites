@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { subscriptionService } from '../services/api';
 import './Subscriptions.css';
 
@@ -7,6 +8,7 @@ function Subscriptions() {
     const [subscriptions, setSubscriptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [cancellingId, setCancellingId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,6 +19,11 @@ function Subscriptions() {
         try {
             const response = await subscriptionService.getMySubscriptions();
             const list = Array.isArray(response.data) ? response.data : [];
+            list.sort((a, b) => {
+                const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return db - da; // latest first
+            });
             setSubscriptions(list);
             if (!Array.isArray(response.data)) {
                 setError('Dữ liệu gói đăng ký không hợp lệ. Vui lòng thử lại.');
@@ -44,6 +51,27 @@ function Subscriptions() {
         const n = Number(value);
         if (!Number.isFinite(n)) return `${value}₫`;
         return `${n.toLocaleString('vi-VN')}₫`;
+    };
+
+    const canCancel = (status) => {
+        const s = (status || '').toUpperCase();
+        return s === 'PENDING' || s === 'ACTIVE';
+    };
+
+    const handleCancel = async (sub) => {
+        if (!canCancel(sub.status)) return;
+        if (!window.confirm(`Bạn có chắc muốn hủy gói "${sub.packageName}"?`)) return;
+
+        setCancellingId(sub.id);
+        setError('');
+        try {
+            await subscriptionService.cancelSubscription(sub.id);
+            await fetchSubscriptions();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Không thể hủy gói đăng ký.');
+        } finally {
+            setCancellingId(null);
+        }
     };
 
     if (loading) {
@@ -120,6 +148,17 @@ function Subscriptions() {
                                     <span className="created-at">
                                         Tạo lúc: {formatDate(sub.createdAt)}
                                     </span>
+                                    {canCancel(sub.status) && (
+                                        <button
+                                            type="button"
+                                            className="subscription-cancel-btn"
+                                            onClick={() => handleCancel(sub)}
+                                            disabled={cancellingId === sub.id}
+                                        >
+                                            <X size={16} />
+                                            {cancellingId === sub.id ? 'Đang hủy...' : 'Hủy gói'}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </article>

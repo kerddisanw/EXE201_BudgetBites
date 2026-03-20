@@ -6,6 +6,7 @@ import com.studentmeal.entity.Customer;
 import com.studentmeal.entity.MealPackage;
 import com.studentmeal.entity.Subscription;
 import com.studentmeal.exception.ResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import com.studentmeal.repository.CustomerRepository;
 import com.studentmeal.repository.MealPackageRepository;
 import com.studentmeal.repository.SubscriptionRepository;
@@ -118,6 +119,23 @@ public class SubscriptionService {
                 subscription.setStatus(status);
                 Subscription updated = subscriptionRepository.save(subscription);
                 return convertToDTO(updated);
+        }
+
+        @Transactional
+        public SubscriptionDTO cancelMySubscription(Long id) {
+                String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                Customer customer = customerRepository.findByEmail(email)
+                                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+                Subscription subscription = subscriptionRepository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
+
+                if (!subscription.getCustomer().getId().equals(customer.getId())) {
+                        throw new AccessDeniedException("Bạn chỉ có thể hủy gói đăng ký của chính mình.");
+                }
+
+                subscription.setStatus(Subscription.SubscriptionStatus.CANCELLED);
+                return convertToDTO(subscriptionRepository.save(subscription));
         }
 
         private SubscriptionDTO convertToDTO(Subscription subscription) {

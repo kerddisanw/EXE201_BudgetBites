@@ -83,7 +83,13 @@ export const cartService = {
 export const subscriptionService = {
     createSubscription: (data) => api.post('/subscriptions', data),
     getMySubscriptions: () => api.get('/subscriptions/me'),
-    getSubscriptionById: (id) => api.get(`/subscriptions/${id}`)
+    getSubscriptionById: (id) => api.get(`/subscriptions/${id}`),
+    cancelSubscription: (id) => api.post(`/subscriptions/${id}/cancel`)
+};
+
+export const orderService = {
+    getOrdersBySubscription: (subscriptionId) =>
+        api.get(`/orders/subscriptions/${subscriptionId}`)
 };
 
 export const paymentService = {
