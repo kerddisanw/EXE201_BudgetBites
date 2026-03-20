@@ -16,7 +16,10 @@ const resolveApiUrl = () => {
     return 'https://exe201-budgetbites.onrender.com/api';
 };
 
-const API_URL = import.meta.env.VITE_API_URL || resolveApiUrl();
+// Prefer build-time VITE_API_URL when it's provided (most reliable for deployed builds),
+// otherwise fall back to runtime inference by hostname.
+const buildApiUrl = import.meta.env.VITE_API_URL || '';
+const API_URL = buildApiUrl ? buildApiUrl : resolveApiUrl();
 
 export default {
     API_URL,
