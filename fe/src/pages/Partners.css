@@ -426,3 +426,476 @@
     }
 }
 
+/* ============================================
+   Partner Meals Page (Redesigned)
+   ============================================ */
+
+.partner-meals-page {
+    min-height: calc(100vh - 120px);
+    padding-bottom: 48px;
+    background: #f8fafc;
+}
+
+.partner-meals-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+}
+
+.partner-meals-hero {
+    position: relative;
+    padding: 24px 24px 32px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    color: #ffffff;
+}
+
+.partner-meals-hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            circle at 20% 50%,
+            rgba(249, 115, 22, 0.15) 0,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(34, 197, 94, 0.1) 0,
+            transparent 40%
+        );
+    pointer-events: none;
+}
+
+.partner-meals-hero-inner {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.partner-meals-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.18s ease;
+}
+
+.partner-meals-back-link:hover {
+    color: #ffffff;
+}
+
+.partner-meals-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.partner-meals-hero-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.partner-meals-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.partner-meals-hero-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.partner-meals-hero-text h1 {
+    margin: 0 0 6px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.partner-meals-hero-address {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.partner-meals-toolbar {
+    max-width: 1100px;
+    margin: 20px auto 20px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+    position: relative;
+    z-index: 1;
+}
+
+.partner-meals-date-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.partner-meals-date-wrap label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.partner-meals-date-input {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.9rem;
+    color: #111827;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.partner-meals-date-input:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.partner-meals-cart-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: #f97316;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+    transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.partner-meals-cart-cta:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
+.partner-meals-toast {
+    position: fixed;
+    left: 50%;
+    top: 100px;
+    transform: translateX(-50%);
+    z-index: 50;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
+    animation: partner-meals-toast-in 0.25s ease;
+}
+
+.partner-meals-toast-success {
+    background: #15803d;
+    color: #ffffff;
+}
+
+.partner-meals-toast-error {
+    background: #b91c1c;
+    color: #ffffff;
+}
+
+@keyframes partner-meals-toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.partner-meals-error-card,
+.partner-meals-empty {
+    max-width: 480px;
+    margin: 48px auto 0;
+    padding: 32px;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.partner-meals-error-card p,
+.partner-meals-empty p {
+    margin: 0 0 20px;
+    color: #6b7280;
+}
+
+.partner-meals-empty h3 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: #111827;
+}
+
+.partner-meals-empty svg {
+    margin-bottom: 16px;
+    color: #94a3b8;
+}
+
+.partner-meals-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: #f97316;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.partner-meals-back-btn:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+}
+
+.partner-meals-day-tabs {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    padding: 0 24px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.partner-meals-day-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.partner-meals-day-tab {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.partner-meals-day-tab:hover {
+    border-color: #f97316;
+    color: #f97316;
+}
+
+.partner-meals-day-tab-active {
+    border-color: #f97316;
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    color: #c2410c;
+}
+
+.partner-meals-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.partner-meals-period {
+    margin-bottom: 32px;
+}
+
+.partner-meals-period-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.partner-meals-period-title svg {
+    color: #f97316;
+}
+
+.partner-meals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+}
+
+.partner-meal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.partner-meal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    border-color: #fde68a;
+}
+
+.partner-meal-card-image {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: #f1f5f9;
+}
+
+.partner-meal-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.partner-meal-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+}
+
+.partner-meal-add-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: #f97316;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.5);
+    transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.partner-meal-add-btn:hover:not(:disabled) {
+    background: #ea580c;
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(249, 115, 22, 0.6);
+}
+
+.partner-meal-add-btn:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.partner-meal-spinner {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
+    animation: partner-meal-spin 0.7s linear infinite;
+}
+
+@keyframes partner-meal-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.partner-meal-card-body {
+    padding: 14px 16px;
+}
+
+.partner-meal-name {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.partner-meal-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f97316;
+}
+
+@media (max-width: 768px) {
+    .partner-meals-hero {
+        padding: 20px 16px 28px;
+    }
+
+    .partner-meals-hero-content {
+        gap: 16px;
+    }
+
+    .partner-meals-hero-image,
+    .partner-meals-hero-placeholder {
+        width: 64px;
+        height: 64px;
+    }
+
+    .partner-meals-hero-text h1 {
+        font-size: 1.3rem;
+    }
+
+    .partner-meals-toolbar {
+        margin: 16px auto 16px;
+        padding: 14px 16px;
+    }
+
+    .partner-meals-date-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .partner-meals-day-tabs {
+        padding: 0 16px;
+    }
+
+    .partner-meals-content {
+        padding: 0 16px;
+    }
+
+    .partner-meals-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 14px;
+    }
+}
+

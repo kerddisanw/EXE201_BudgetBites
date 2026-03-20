@@ -37,14 +37,16 @@ const Partners = () => {
     };
 
     const partnersList = Array.isArray(partners) ? partners : [];
-    const filteredPartners = partnersList.filter((p) => {
-        if (!search.trim()) return true;
-        const term = search.toLowerCase();
-        return (
-            p.name?.toLowerCase().includes(term) ||
-            p.description?.toLowerCase().includes(term)
-        );
-    });
+    const filteredPartners = partnersList
+        .filter((p) => p.active === true)
+        .filter((p) => {
+            if (!search.trim()) return true;
+            const term = search.toLowerCase();
+            return (
+                p.name?.toLowerCase().includes(term) ||
+                p.description?.toLowerCase().includes(term)
+            );
+        });
 
     if (loading) {
         return (
