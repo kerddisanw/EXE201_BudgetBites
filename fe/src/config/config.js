@@ -7,10 +7,10 @@ const resolveApiUrl = () => {
     const host = window.location.hostname;
 
     // Local dev (frontend -> BE)
-    if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8080/api';
+    if (host === 'localhost' || host === '127.0.0.1') return 'https://exe201-budgetbites.onrender.com/api';
 
     // Deployed FE domain
-    if (host.includes('exe201-budgetbites-1')) return 'https://exe201-budgetbites-1.onrender.com/api';
+    if (host.includes('exe201-budgetbites-1')) return 'https://exe201-budgetbites.onrender.com/api';
 
     // Fallback to previous deployed backend
     return 'https://exe201-budgetbites.onrender.com/api';
