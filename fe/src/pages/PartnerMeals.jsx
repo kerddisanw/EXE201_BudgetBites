@@ -28,8 +28,11 @@ const PartnerMeals = () => {
                 if (!isMounted) return;
 
                 setPartner(partnerRes.data);
-                const data = menusRes.data || [];
+                const data = Array.isArray(menusRes.data) ? menusRes.data : [];
                 setMenus(data);
+                if (!Array.isArray(menusRes.data)) {
+                    setError('Dữ liệu thực đơn không hợp lệ. Vui lòng thử lại.');
+                }
             } catch (err) {
                 if (!isMounted) return;
                 setError(

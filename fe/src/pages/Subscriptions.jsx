@@ -16,7 +16,11 @@ function Subscriptions() {
     const fetchSubscriptions = async () => {
         try {
             const response = await subscriptionService.getMySubscriptions();
-            setSubscriptions(response.data);
+            const list = Array.isArray(response.data) ? response.data : [];
+            setSubscriptions(list);
+            if (!Array.isArray(response.data)) {
+                setError('Dữ liệu gói đăng ký không hợp lệ. Vui lòng thử lại.');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Không thể tải danh sách gói đăng ký.');
         } finally {

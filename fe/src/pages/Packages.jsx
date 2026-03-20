@@ -17,7 +17,11 @@ function Packages() {
     const fetchPackages = async () => {
         try {
             const response = await packageService.getAllPackages();
-            setPackages(response.data);
+            const list = Array.isArray(response.data) ? response.data : [];
+            setPackages(list);
+            if (!Array.isArray(response.data)) {
+                setError('Dữ liệu gói bữa ăn không hợp lệ. Vui lòng thử lại.');
+            }
         } catch (err) {
             setError('Failed to load packages');
         } finally {

@@ -1,7 +1,8 @@
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
-// Pick backend API URL based on where the FE is running.
-// This prevents "login can't work" when VITE_API_URL points to the old Render backend.
+// Pick backend API URL.
+// 1) Prefer build-time `VITE_API_URL` if provided (most reliable).
+// 2) Otherwise, infer from hostname so it works across environments.
 const resolveApiUrl = () => {
     const host = window.location.hostname;
 
@@ -15,7 +16,7 @@ const resolveApiUrl = () => {
     return 'https://exe201-budgetbites.onrender.com/api';
 };
 
-const API_URL = resolveApiUrl();
+const API_URL = import.meta.env.VITE_API_URL || resolveApiUrl();
 
 export default {
     API_URL,

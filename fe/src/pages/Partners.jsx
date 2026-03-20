@@ -14,7 +14,11 @@ const Partners = () => {
         const fetchPartners = async () => {
             try {
                 const res = await partnerService.getAllPartners();
-                setPartners(res.data || []);
+                const list = Array.isArray(res.data) ? res.data : [];
+                setPartners(list);
+                if (!Array.isArray(res.data)) {
+                    setError('Dữ liệu đối tác không hợp lệ. Vui lòng thử lại.');
+                }
             } catch (err) {
                 setError(
                     err.response?.data?.message ||
@@ -32,7 +36,8 @@ const Partners = () => {
         navigate(`/partners/${id}`);
     };
 
-    const filteredPartners = partners.filter((p) => {
+    const partnersList = Array.isArray(partners) ? partners : [];
+    const filteredPartners = partnersList.filter((p) => {
         if (!search.trim()) return true;
         const term = search.toLowerCase();
         return (

@@ -34,7 +34,11 @@ const Account = () => {
 
                 if (!isMounted) return;
                 setProfile(profileRes.data);
-                setSubs(subsRes.data || []);
+                const list = Array.isArray(subsRes.data) ? subsRes.data : [];
+                setSubs(list);
+                if (!Array.isArray(subsRes.data)) {
+                    setSubsError('Dữ liệu gói đăng ký không hợp lệ. Vui lòng thử lại.');
+                }
             } catch (err) {
                 if (isMounted) {
                     setError(

@@ -42,13 +42,13 @@ const Cart = () => {
 
             setCart(cartRes.data || { items: [], totalItems: 0, totalAmount: 0 });
 
-            const subs = subsRes?.data || [];
-            const active = subs.filter((s) => String(s.status || '').toUpperCase() === 'ACTIVE');
+            const subsList = Array.isArray(subsRes?.data) ? subsRes.data : [];
+            const active = subsList.filter((s) => String(s.status || '').toUpperCase() === 'ACTIVE');
             setActiveSubscriptions(active);
             setSelectedSubscriptionId(active[0]?.id || null);
 
-            const pkgs = packagesRes?.data || [];
-            setPackages(pkgs);
+            const pkgsList = Array.isArray(packagesRes?.data) ? packagesRes.data : [];
+            setPackages(pkgsList);
             // Default to "Không" (auto-pick first package) so the option is visible immediately.
             setSelectedPackageId(null);
         } catch (err) {
