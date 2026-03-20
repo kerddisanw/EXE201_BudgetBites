@@ -29,7 +29,7 @@ public class WeeklyMenu {
 
     private String description;
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuItem> items;
 
     @CreationTimestamp

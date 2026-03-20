@@ -79,6 +79,14 @@ public class MenuController {
         return ResponseEntity.ok(menuService.getWeeklySchedule(partnerId));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<WeeklyMenuDTO> updateMenu(
+            @PathVariable Long id,
+            @RequestBody WeeklyMenuRequest request) {
+        return ResponseEntity.ok(menuService.updateMenu(id, request));
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<WeeklyMenuDTO> createMenu(@RequestBody WeeklyMenuRequest request) {

@@ -130,6 +130,37 @@ public class MenuService {
     }
 
     @Transactional
+    public WeeklyMenuDTO updateMenu(Long id, WeeklyMenuRequest request) {
+        WeeklyMenu menu = weeklyMenuRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu not found with id: " + id));
+
+        menu.setWeekStartDate(request.getWeekStartDate());
+        menu.setDescription(request.getDescription());
+
+        if (request.getItems() != null) {
+            // Xóa hết cũ, thêm mới (orphanRemoval sẽ tự xóa trong DB)
+            menu.getItems().clear();
+            
+            List<MenuItem> newItems = request.getItems().stream().map(itemRequest -> {
+                MenuItem item = new MenuItem();
+                item.setMenu(menu);
+                item.setDayOfWeek(itemRequest.getDayOfWeek());
+                item.setItemName(itemRequest.getItemName());
+                item.setMealType(itemRequest.getMealType());
+                item.setCalories(itemRequest.getCalories());
+                item.setImageUrl(itemRequest.getImageUrl());
+                item.setPriceOriginal(itemRequest.getPriceOriginal());
+                return item;
+            }).collect(Collectors.toList());
+            
+            menu.getItems().addAll(newItems);
+        }
+
+        WeeklyMenu savedMenu = weeklyMenuRepository.save(menu);
+        return convertToDTO(savedMenu);
+    }
+
+    @Transactional
     public WeeklyMenuDTO createMenu(WeeklyMenuRequest request) {
         MealPartner partner = mealPartnerRepository.findById(request.getPartnerId())
                 .orElseThrow(
@@ -150,6 +181,7 @@ public class MenuService {
                 item.setItemName(itemRequest.getItemName());
                 item.setMealType(itemRequest.getMealType());
                 item.setCalories(itemRequest.getCalories());
+                item.setImageUrl(itemRequest.getImageUrl());
                 item.setPriceOriginal(itemRequest.getPriceOriginal());
                 return item;
             }).collect(Collectors.toList());
@@ -171,16 +203,9 @@ public class MenuService {
         dto.setCreatedAt(menu.getCreatedAt());
 
         if (menu.getItems() != null) {
-            dto.setItems(menu.getItems().stream().map(item -> {
-                MenuItemDTO itemDto = new MenuItemDTO();
-                itemDto.setId(item.getId());
-                itemDto.setDayOfWeek(item.getDayOfWeek() != null ? item.getDayOfWeek().name() : null);
-                itemDto.setItemName(item.getItemName());
-                itemDto.setMealType(item.getMealType());
-                itemDto.setCalories(item.getCalories());
-                itemDto.setPriceOriginal(item.getPriceOriginal());
-                return itemDto;
-            }).collect(Collectors.toList()));
+            dto.setItems(menu.getItems().stream()
+                    .map(this::toMenuItemDTO)
+                    .collect(Collectors.toList()));
         }
 
         return dto;
