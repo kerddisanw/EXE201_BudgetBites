@@ -11,5 +11,7 @@ import java.util.List;
 public interface MealOrderRepository extends JpaRepository<MealOrder, Long> {
     List<MealOrder> findBySubscriptionId(Long subscriptionId);
 
+    boolean existsBySubscriptionId(Long subscriptionId);
+
     List<MealOrder> findByPartnerIdAndOrderDate(Long partnerId, LocalDate orderDate);
 }

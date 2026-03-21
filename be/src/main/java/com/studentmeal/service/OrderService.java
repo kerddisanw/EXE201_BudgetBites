@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,11 @@ public class OrderService {
         if (order.getMenuItem() != null) {
             dto.setMenuItemId(order.getMenuItem().getId());
             dto.setMenuItemName(order.getMenuItem().getItemName());
+            BigDecimal price = order.getMenuItem().getPriceOriginal();
+            if (Boolean.TRUE.equals(order.getWithTray())) {
+                price = price.add(new BigDecimal("1000"));
+            }
+            dto.setPrice(price);
         }
 
         return dto;

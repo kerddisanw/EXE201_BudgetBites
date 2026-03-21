@@ -49,7 +49,7 @@ const Cart = () => {
 
             const pkgsList = Array.isArray(packagesRes?.data) ? packagesRes.data : [];
             setPackages(pkgsList);
-            // Default to "Không" (auto-pick first package) so the option is visible immediately.
+            // Default to "Không" for new package checkout (cart PayOS) until user picks a gói.
             setSelectedPackageId(null);
         } catch (err) {
             setError(

@@ -17,6 +17,7 @@ import {
     X
 } from 'lucide-react';
 import { authService, subscriptionService, orderService } from '../services/api';
+import { isCartCheckoutNoPackageSubscription } from '../utils/subscriptionUtils';
 import './Profile.css';
 
 const Account = () => {
@@ -60,7 +61,7 @@ const Account = () => {
                 });
                 setSubs(list);
 
-                // Fetch orders from ACTIVE subscriptions
+                // Meal orders (incl. cart-only checkout subs); package UI excludes cart-only shells
                 const activeSubs = list.filter((s) => (s.status || '').toUpperCase() === 'ACTIVE');
                 const orderPromises = activeSubs.map((s) =>
                     orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
@@ -128,7 +129,7 @@ const Account = () => {
     };
 
     const handleCancelSubscription = async () => {
-        const sub = subs[0];
+        const sub = subs.filter((s) => !isCartCheckoutNoPackageSubscription(s))[0];
         if (!sub || !canCancelSub(sub.status)) return;
         if (
             !window.confirm(
@@ -150,7 +151,8 @@ const Account = () => {
         }
     };
 
-    const latestSub = subs[0];
+    const subsForPackages = subs.filter((s) => !isCartCheckoutNoPackageSubscription(s));
+    const latestSub = subsForPackages[0];
     const recentOrders = orders.slice(0, 5);
     const totalOrders = orders.length;
 

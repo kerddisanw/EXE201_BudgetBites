@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { subscriptionService } from '../services/api';
+import { isCartCheckoutNoPackageSubscription } from '../utils/subscriptionUtils';
 import './Subscriptions.css';
 
 function Subscriptions() {
@@ -24,7 +25,7 @@ function Subscriptions() {
                 const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
                 return db - da; // latest first
             });
-            setSubscriptions(list);
+            setSubscriptions(list.filter((s) => !isCartCheckoutNoPackageSubscription(s)));
             if (!Array.isArray(response.data)) {
                 setError('Dữ liệu gói đăng ký không hợp lệ. Vui lòng thử lại.');
             }

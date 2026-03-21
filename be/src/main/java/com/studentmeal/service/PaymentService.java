@@ -1,5 +1,6 @@
 package com.studentmeal.service;
 
+import com.studentmeal.BudgetBitesConstants;
 import com.studentmeal.dto.CartResponse;
 import com.studentmeal.entity.Customer;
 import com.studentmeal.entity.MealPackage;
@@ -50,6 +51,7 @@ public class PaymentService {
         // Update subscription status to ACTIVE once paid
         subscription.setStatus(Subscription.SubscriptionStatus.ACTIVE);
         subscriptionRepository.save(subscription);
+        cartService.fulfillCartCheckoutSubscriptionAfterPayment(subscriptionId);
 
         return paymentRepository.save(payment);
     }
@@ -100,7 +102,7 @@ public class PaymentService {
         subscription.setEndDate(today);
         subscription.setStatus(Subscription.SubscriptionStatus.PENDING);
         subscription.setTotalAmount(cart.getTotalAmount());
-        subscription.setNotes("Thanh toán theo giỏ hàng (không chọn gói cố định)");
+        subscription.setNotes(BudgetBitesConstants.SUBSCRIPTION_NOTES_CART_CHECKOUT_NO_PACKAGE);
 
         Subscription savedSub = subscriptionRepository.save(subscription);
 
@@ -136,6 +138,7 @@ public class PaymentService {
             if (subscription != null) {
                 subscription.setStatus(Subscription.SubscriptionStatus.ACTIVE);
                 subscriptionRepository.save(subscription);
+                cartService.fulfillCartCheckoutSubscriptionAfterPayment(subscription.getId());
             }
         } else {
             payment.setStatus(Payment.PaymentStatus.FAILED);

@@ -2,6 +2,7 @@ package com.studentmeal.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -16,4 +17,6 @@ public class MealOrderDTO {
     private String mealType;
     private Boolean withTray; // Thêm khay ăn và dụng cụ ăn (+1,000đ)
     private String status;
+    /** Line total (món + khay nếu có), aligned with cart pricing. */
+    private BigDecimal price;
 }

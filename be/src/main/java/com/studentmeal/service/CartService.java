@@ -1,5 +1,6 @@
 package com.studentmeal.service;
 
+import com.studentmeal.BudgetBitesConstants;
 import com.studentmeal.dto.*;
 import com.studentmeal.entity.*;
 import com.studentmeal.exception.ResourceNotFoundException;
@@ -106,15 +107,54 @@ public class CartService {
     @Transactional
     public List<MealOrderDTO> checkout(Long subscriptionId) {
         Customer customer = getCurrentCustomer();
-        List<CartItem> cartItems = cartItemRepository.findByCustomerId(customer.getId());
+        Subscription subscription = subscriptionRepository.findById(subscriptionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
+        if (!subscription.getCustomer().getId().equals(customer.getId())) {
+            throw new RuntimeException("Không có quyền thanh toán gói này");
+        }
 
+        List<CartItem> cartItems = cartItemRepository.findByCustomerId(customer.getId());
         if (cartItems.isEmpty()) {
+            if (isCartCheckoutNoPackageSubscription(subscription)
+                    && mealOrderRepository.existsBySubscriptionId(subscriptionId)) {
+                return mealOrderRepository.findBySubscriptionId(subscriptionId).stream()
+                        .map(this::toOrderDTO)
+                        .collect(Collectors.toList());
+            }
             throw new RuntimeException("Giỏ hàng trống");
         }
 
+        return finalizeCheckout(subscription, cartItems);
+    }
+
+    /**
+     * Called from PayOS webhook (no JWT). Creates meal orders from the customer's cart for a
+     * cart-only subscription, idempotent if orders already exist.
+     */
+    @Transactional
+    public void fulfillCartCheckoutSubscriptionAfterPayment(Long subscriptionId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
+        if (!isCartCheckoutNoPackageSubscription(subscription)) {
+            return;
+        }
+        if (mealOrderRepository.existsBySubscriptionId(subscriptionId)) {
+            return;
+        }
+        List<CartItem> cartItems = cartItemRepository.findByCustomerId(
+                subscription.getCustomer().getId());
+        if (cartItems.isEmpty()) {
+            return;
+        }
+        finalizeCheckout(subscription, cartItems);
+    }
 
+    private boolean isCartCheckoutNoPackageSubscription(Subscription subscription) {
+        return BudgetBitesConstants.SUBSCRIPTION_NOTES_CART_CHECKOUT_NO_PACKAGE.equals(
+                subscription.getNotes());
+    }
+
+    private List<MealOrderDTO> finalizeCheckout(Subscription subscription, List<CartItem> cartItems) {
         List<MealOrder> orders = cartItems.stream().map(cartItem -> {
             MealOrder order = new MealOrder();
             order.setSubscription(subscription);
@@ -122,15 +162,13 @@ public class CartService {
             order.setMenuItem(cartItem.getMenuItem());
             order.setOrderDate(cartItem.getOrderDate());
             order.setMealType(cartItem.getMenuItem().getMealType());
-            order.setWithTray(cartItem.getWithTray()); // Copy tray selection
+            order.setWithTray(cartItem.getWithTray());
             order.setStatus(MealOrder.OrderStatus.PENDING);
             return order;
         }).collect(Collectors.toList());
 
         List<MealOrder> savedOrders = mealOrderRepository.saveAll(orders);
-
-        cartItemRepository.deleteByCustomerId(customer.getId());
-
+        cartItemRepository.deleteByCustomerId(subscription.getCustomer().getId());
         return savedOrders.stream().map(this::toOrderDTO).collect(Collectors.toList());
     }
 
@@ -172,6 +210,18 @@ public class CartService {
         dto.setMealType(order.getMealType());
         dto.setWithTray(order.getWithTray());
         dto.setStatus(order.getStatus().name());
+        dto.setPrice(orderLinePrice(order));
         return dto;
+    }
+
+    private BigDecimal orderLinePrice(MealOrder order) {
+        if (order.getMenuItem() == null) {
+            return null;
+        }
+        BigDecimal price = order.getMenuItem().getPriceOriginal();
+        if (Boolean.TRUE.equals(order.getWithTray())) {
+            price = price.add(new BigDecimal("1000"));
+        }
+        return price;
     }
 }
