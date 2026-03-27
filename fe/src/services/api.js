@@ -89,7 +89,8 @@ export const subscriptionService = {
 
 export const orderService = {
     getOrdersBySubscription: (subscriptionId) =>
-        api.get(`/orders/subscriptions/${subscriptionId}`)
+        api.get(`/orders/subscriptions/${subscriptionId}`),
+    getOrderById: (orderId) => api.get(`/orders/${orderId}`)
 };
 
 export const paymentService = {

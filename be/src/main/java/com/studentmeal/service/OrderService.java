@@ -2,16 +2,19 @@ package com.studentmeal.service;
 
 import com.studentmeal.dto.MealOrderDTO;
 import com.studentmeal.dto.MealOrderRequest;
+import com.studentmeal.entity.Customer;
 import com.studentmeal.entity.MealOrder;
 import com.studentmeal.entity.MealPartner;
 import com.studentmeal.entity.MenuItem;
 import com.studentmeal.entity.Subscription;
 import com.studentmeal.exception.ResourceNotFoundException;
+import com.studentmeal.repository.CustomerRepository;
 import com.studentmeal.repository.MealOrderRepository;
 import com.studentmeal.repository.MealPartnerRepository;
 import com.studentmeal.repository.MenuItemRepository;
 import com.studentmeal.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +30,25 @@ public class OrderService {
     private final SubscriptionRepository subscriptionRepository;
     private final MealPartnerRepository mealPartnerRepository;
     private final MenuItemRepository menuItemRepository;
+    private final CustomerRepository customerRepository;
 
     @Transactional(readOnly = true)
     public List<MealOrderDTO> getOrdersBySubscription(Long subscriptionId) {
         return mealOrderRepository.findBySubscriptionId(subscriptionId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public MealOrderDTO getMyOrderById(Long orderId) {
+        MealOrder order = mealOrderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        Customer customer = getCurrentCustomer();
+        Long ownerId = order.getSubscription().getCustomer().getId();
+        if (!ownerId.equals(customer.getId())) {
+            throw new ResourceNotFoundException("Order not found");
+        }
+        return convertToDTO(order);
     }
 
     @Transactional
@@ -90,5 +106,11 @@ public class OrderService {
         }
 
         return dto;
+    }
+
+    private Customer getCurrentCustomer() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return customerRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
     }
 }

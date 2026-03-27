@@ -35,6 +35,31 @@ const Account = () => {
         navigate('/login');
     };
 
+    const fetchOrdersFromSubscriptions = async (subList) => {
+        const orderSourceSubs = subList.filter((s) => {
+            const status = (s.status || '').toUpperCase();
+            return status !== 'CANCELLED';
+        });
+        const orderPromises = orderSourceSubs.map((s) =>
+            orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
+        );
+        const orderResults = await Promise.all(orderPromises);
+        const dedup = new Map();
+        orderResults.forEach((r) => {
+            const rows = Array.isArray(r.data) ? r.data : [];
+            rows.forEach((order) => {
+                if (order?.id != null) dedup.set(order.id, order);
+            });
+        });
+        const allOrders = Array.from(dedup.values());
+        allOrders.sort((a, b) => {
+            const da = a.orderDate ? new Date(a.orderDate) : new Date(0);
+            const db = b.orderDate ? new Date(b.orderDate) : new Date(0);
+            return db - da;
+        });
+        return allOrders;
+    };
+
     useEffect(() => {
         let isMounted = true;
 
@@ -61,18 +86,7 @@ const Account = () => {
                 });
                 setSubs(list);
 
-                // Meal orders (incl. cart-only checkout subs); package UI excludes cart-only shells
-                const activeSubs = list.filter((s) => (s.status || '').toUpperCase() === 'ACTIVE');
-                const orderPromises = activeSubs.map((s) =>
-                    orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
-                );
-                const orderResults = await Promise.all(orderPromises);
-                const allOrders = orderResults.flatMap((r) => (Array.isArray(r.data) ? r.data : []));
-                allOrders.sort((a, b) => {
-                    const da = a.orderDate ? new Date(a.orderDate) : new Date(0);
-                    const db = b.orderDate ? new Date(b.orderDate) : new Date(0);
-                    return db - da;
-                });
+                const allOrders = await fetchOrdersFromSubscriptions(list);
                 setOrders(allOrders);
             } catch (err) {
                 if (isMounted) {
@@ -106,17 +120,7 @@ const Account = () => {
             });
             setSubs(list);
             setSubsError('');
-            const activeSubs = list.filter((s) => (s.status || '').toUpperCase() === 'ACTIVE');
-            const orderPromises = activeSubs.map((s) =>
-                orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
-            );
-            const orderResults = await Promise.all(orderPromises);
-            const allOrders = orderResults.flatMap((r) => (Array.isArray(r.data) ? r.data : []));
-            allOrders.sort((a, b) => {
-                const da = a.orderDate ? new Date(a.orderDate) : new Date(0);
-                const db = b.orderDate ? new Date(b.orderDate) : new Date(0);
-                return db - da;
-            });
+            const allOrders = await fetchOrdersFromSubscriptions(list);
             setOrders(allOrders);
         } catch {
             // ignore
@@ -350,9 +354,12 @@ const Account = () => {
                                 <div
                                     key={order.id}
                                     className="account-order-card"
-                                    onClick={() => navigate('/subscriptions')}
+                                    onClick={() =>
+                                        navigate(`/orders/${order.id}`, { state: { order } })
+                                    }
                                     onKeyDown={(e) =>
-                                        e.key === 'Enter' && navigate('/subscriptions')
+                                        e.key === 'Enter' &&
+                                        navigate(`/orders/${order.id}`, { state: { order } })
                                     }
                                     role="button"
                                     tabIndex={0}

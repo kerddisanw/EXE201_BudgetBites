@@ -22,6 +22,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersBySubscription(subscriptionId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<MealOrderDTO> getMyOrderById(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getMyOrderById(id));
+    }
+
     @PostMapping
     public ResponseEntity<MealOrderDTO> createOrder(@RequestBody MealOrderRequest request) {
         return ResponseEntity.ok(orderService.createOrder(request));

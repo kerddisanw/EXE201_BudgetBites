@@ -1,0 +1,125 @@
+.order-details-page {
+    min-height: calc(100vh - 120px);
+    padding: 28px;
+    background: radial-gradient(circle at top left, #ffedd5 0, transparent 45%),
+        radial-gradient(circle at bottom right, #dbeafe 0, transparent 50%), #f9fafb;
+}
+
+.order-details-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-details-container {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.order-details-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #374151;
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+}
+
+.order-details-back-link:hover {
+    color: #111827;
+}
+
+.order-details-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+    padding: 18px;
+}
+
+.order-details-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.order-details-head h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #111827;
+}
+
+.order-details-status {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.order-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+}
+
+.order-details-row {
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    background: #fcfdff;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.order-details-row .label {
+    color: #6b7280;
+    font-size: 0.84rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.order-details-row .value {
+    color: #111827;
+    font-weight: 600;
+}
+
+.order-details-price {
+    color: #ea580c;
+}
+
+.order-details-error {
+    max-width: 520px;
+    margin: 38px auto 0;
+    background: #ffffff;
+    border: 1px solid #fee2e2;
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    color: #b91c1c;
+}
+
+.order-details-back {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #111827;
+}
+
+@media (max-width: 768px) {
+    .order-details-page {
+        padding: 18px 14px;
+    }
+
+    .order-details-grid {
+        grid-template-columns: 1fr;
+    }
+}

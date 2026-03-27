@@ -12,6 +12,7 @@ import Account from './pages/Account';
 import Partners from './pages/Partners';
 import PartnerMeals from './pages/PartnerMeals';
 import Cart from './pages/Cart';
+import OrderDetails from './pages/OrderDetails';
 import AppLayout from './components/AppLayout';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
@@ -149,6 +150,16 @@ function App() {
                         <PrivateRoute>
                             <AppLayout>
                                 <Cart />
+                            </AppLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/orders/:orderId"
+                    element={
+                        <PrivateRoute>
+                            <AppLayout>
+                                <OrderDetails />
                             </AppLayout>
                         </PrivateRoute>
                     }
