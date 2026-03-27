@@ -24,10 +24,12 @@ public interface MealOrderRepository extends JpaRepository<MealOrder, Long> {
             where mo.subscription.customer.id = :customerId
               and mo.partner.id = :partnerId
               and p.status = :paymentStatus
+              and mo.status = :orderStatus
             """)
     boolean existsPaidOrderByCustomerAndPartner(
             Long customerId,
             Long partnerId,
-            Payment.PaymentStatus paymentStatus
+            Payment.PaymentStatus paymentStatus,
+            MealOrder.OrderStatus orderStatus
     );
 }

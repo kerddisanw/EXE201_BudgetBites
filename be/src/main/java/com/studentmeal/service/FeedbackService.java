@@ -5,6 +5,7 @@ import com.studentmeal.dto.FeedbackEligibilityDTO;
 import com.studentmeal.dto.FeedbackRequest;
 import com.studentmeal.entity.Customer;
 import com.studentmeal.entity.Feedback;
+import com.studentmeal.entity.MealOrder;
 import com.studentmeal.entity.MealPartner;
 import com.studentmeal.entity.Payment;
 import com.studentmeal.exception.ResourceNotFoundException;
@@ -46,7 +47,7 @@ public class FeedbackService {
                 .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
         if (!hasPaidOrderWithPartner(customer.getId(), partner.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Bạn chỉ có thể đánh giá sau khi thanh toán thành công ít nhất 1 bữa ăn từ quán này");
+                    "Bạn chỉ có thể đánh giá sau khi bữa ăn hoàn thành (Hoàn thành) từ quán này");
         }
 
         Feedback feedback = new Feedback();
@@ -67,7 +68,7 @@ public class FeedbackService {
         boolean eligible = hasPaidOrderWithPartner(customer.getId(), partnerId);
         String message = eligible
                 ? "Bạn có thể đánh giá quán này."
-                : "Bạn cần thanh toán thành công ít nhất 1 bữa ăn từ quán này để đánh giá.";
+                : "Bạn cần có ít nhất 1 bữa ăn hoàn thành (Hoàn thành) từ quán này để đánh giá.";
         return new FeedbackEligibilityDTO(eligible, message);
     }
 
@@ -81,7 +82,8 @@ public class FeedbackService {
         return mealOrderRepository.existsPaidOrderByCustomerAndPartner(
                 customerId,
                 partnerId,
-                Payment.PaymentStatus.COMPLETED
+                Payment.PaymentStatus.COMPLETED,
+                MealOrder.OrderStatus.DELIVERED
         );
     }
 

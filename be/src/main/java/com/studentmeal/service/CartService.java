@@ -117,6 +117,7 @@ public class CartService {
         if (cartItems.isEmpty()) {
             if (isCartCheckoutNoPackageSubscription(subscription)
                     && mealOrderRepository.existsBySubscriptionId(subscriptionId)) {
+                updateMealOrdersStatusForSubscription(subscriptionId, MealOrder.OrderStatus.DELIVERED);
                 return mealOrderRepository.findBySubscriptionId(subscriptionId).stream()
                         .map(this::toOrderDTO)
                         .collect(Collectors.toList());
@@ -139,6 +140,8 @@ public class CartService {
             return;
         }
         if (mealOrderRepository.existsBySubscriptionId(subscriptionId)) {
+            // Orders already created (race/webhook ordering). Ensure status reflects successful payment.
+            updateMealOrdersStatusForSubscription(subscriptionId, MealOrder.OrderStatus.DELIVERED);
             return;
         }
         List<CartItem> cartItems = cartItemRepository.findByCustomerId(
@@ -163,13 +166,27 @@ public class CartService {
             order.setOrderDate(cartItem.getOrderDate());
             order.setMealType(cartItem.getMenuItem().getMealType());
             order.setWithTray(cartItem.getWithTray());
-            order.setStatus(MealOrder.OrderStatus.PENDING);
+            // Mark as completed right after cart payment succeeds (so user can rate immediately).
+            order.setStatus(MealOrder.OrderStatus.DELIVERED);
             return order;
         }).collect(Collectors.toList());
 
         List<MealOrder> savedOrders = mealOrderRepository.saveAll(orders);
         cartItemRepository.deleteByCustomerId(subscription.getCustomer().getId());
         return savedOrders.stream().map(this::toOrderDTO).collect(Collectors.toList());
+    }
+
+    private void updateMealOrdersStatusForSubscription(Long subscriptionId, MealOrder.OrderStatus status) {
+        List<MealOrder> existing = mealOrderRepository.findBySubscriptionId(subscriptionId);
+        if (existing == null || existing.isEmpty()) {
+            return;
+        }
+        for (MealOrder order : existing) {
+            if (order.getStatus() == null || order.getStatus() == MealOrder.OrderStatus.PENDING) {
+                order.setStatus(status);
+            }
+        }
+        mealOrderRepository.saveAll(existing);
     }
 
     private Customer getCurrentCustomer() {

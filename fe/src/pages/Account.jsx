@@ -16,7 +16,8 @@ import {
     ChevronRight,
     X
 } from 'lucide-react';
-import { authService, subscriptionService, orderService } from '../services/api';
+import { authService, subscriptionService } from '../services/api';
+import { fetchAllMyOrdersFromSubscriptions } from '../utils/orderUtils';
 import { isCartCheckoutNoPackageSubscription } from '../utils/subscriptionUtils';
 import './Profile.css';
 
@@ -33,31 +34,6 @@ const Account = () => {
     const handleLogout = () => {
         authService.logout();
         navigate('/login');
-    };
-
-    const fetchOrdersFromSubscriptions = async (subList) => {
-        const orderSourceSubs = subList.filter((s) => {
-            const status = (s.status || '').toUpperCase();
-            return status !== 'CANCELLED';
-        });
-        const orderPromises = orderSourceSubs.map((s) =>
-            orderService.getOrdersBySubscription(s.id).catch(() => ({ data: [] }))
-        );
-        const orderResults = await Promise.all(orderPromises);
-        const dedup = new Map();
-        orderResults.forEach((r) => {
-            const rows = Array.isArray(r.data) ? r.data : [];
-            rows.forEach((order) => {
-                if (order?.id != null) dedup.set(order.id, order);
-            });
-        });
-        const allOrders = Array.from(dedup.values());
-        allOrders.sort((a, b) => {
-            const da = a.orderDate ? new Date(a.orderDate) : new Date(0);
-            const db = b.orderDate ? new Date(b.orderDate) : new Date(0);
-            return db - da;
-        });
-        return allOrders;
     };
 
     useEffect(() => {
@@ -86,7 +62,7 @@ const Account = () => {
                 });
                 setSubs(list);
 
-                const allOrders = await fetchOrdersFromSubscriptions(list);
+                const allOrders = await fetchAllMyOrdersFromSubscriptions(list);
                 setOrders(allOrders);
             } catch (err) {
                 if (isMounted) {
@@ -120,7 +96,7 @@ const Account = () => {
             });
             setSubs(list);
             setSubsError('');
-            const allOrders = await fetchOrdersFromSubscriptions(list);
+            const allOrders = await fetchAllMyOrdersFromSubscriptions(list);
             setOrders(allOrders);
         } catch {
             // ignore
@@ -330,7 +306,7 @@ const Account = () => {
                         <button
                             type="button"
                             className="account-view-all"
-                            onClick={() => navigate('/subscriptions')}
+                            onClick={() => navigate('/orders')}
                         >
                             Xem tất cả <ChevronRight size={16} />
                         </button>
