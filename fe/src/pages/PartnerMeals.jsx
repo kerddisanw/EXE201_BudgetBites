@@ -8,9 +8,10 @@ import {
     Cookie,
     Plus,
     ShoppingCart,
-    MapPin
+    MapPin,
+    Star
 } from 'lucide-react';
-import { cartService, menuService, partnerService } from '../services/api';
+import { cartService, feedbackService, menuService, partnerService } from '../services/api';
 import './Partners.css';
 
 const MEAL_ICONS = {
@@ -37,6 +38,15 @@ const PartnerMeals = () => {
     const [addingMealId, setAddingMealId] = useState(null);
     const [addMessage, setAddMessage] = useState('');
     const [toastType, setToastType] = useState('success');
+    const [feedbacks, setFeedbacks] = useState([]);
+    const [feedbackEligibility, setFeedbackEligibility] = useState({
+        eligible: false,
+        message: ''
+    });
+    const [feedbackForm, setFeedbackForm] = useState({ rating: 5, comment: '' });
+    const [feedbackBusy, setFeedbackBusy] = useState(false);
+    const [feedbackError, setFeedbackError] = useState('');
+    const [feedbackNotice, setFeedbackNotice] = useState('');
 
     useEffect(() => {
         let isMounted = true;
@@ -56,6 +66,31 @@ const PartnerMeals = () => {
                 if (!Array.isArray(menusRes.data)) {
                     setError('Dữ liệu thực đơn không hợp lệ. Vui lòng thử lại.');
                 }
+
+                const [feedbacksRes, eligibilityRes] = await Promise.all([
+                    feedbackService
+                        .getFeedbacksByPartner(partnerId)
+                        .catch(() => ({ data: [] })),
+                    feedbackService
+                        .getMyEligibilityForPartner(partnerId)
+                        .catch(() => ({
+                            data: {
+                                eligible: false,
+                                message:
+                                    'Bạn cần thanh toán thành công ít nhất 1 bữa ăn từ quán này để đánh giá.'
+                            }
+                        }))
+                ]);
+                const feedbacksData = Array.isArray(feedbacksRes.data)
+                    ? feedbacksRes.data
+                    : [];
+                feedbacksData.sort((a, b) => {
+                    const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                    const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                    return db - da;
+                });
+                setFeedbacks(feedbacksData);
+                setFeedbackEligibility(eligibilityRes.data || { eligible: false, message: '' });
             } catch (err) {
                 if (!isMounted) return;
                 setError(
@@ -75,6 +110,23 @@ const PartnerMeals = () => {
             isMounted = false;
         };
     }, [partnerId]);
+
+    const reloadFeedbackSection = async () => {
+        const [feedbacksRes, eligibilityRes] = await Promise.all([
+            feedbackService.getFeedbacksByPartner(partnerId).catch(() => ({ data: [] })),
+            feedbackService
+                .getMyEligibilityForPartner(partnerId)
+                .catch(() => ({ data: { eligible: false, message: '' } }))
+        ]);
+        const feedbacksData = Array.isArray(feedbacksRes.data) ? feedbacksRes.data : [];
+        feedbacksData.sort((a, b) => {
+            const da = a.createdAt ? new Date(a.createdAt) : new Date(0);
+            const db = b.createdAt ? new Date(b.createdAt) : new Date(0);
+            return db - da;
+        });
+        setFeedbacks(feedbacksData);
+        setFeedbackEligibility(eligibilityRes.data || { eligible: false, message: '' });
+    };
 
     const dayLabel = (day) => {
         const map = {
@@ -112,6 +164,13 @@ const PartnerMeals = () => {
         return `${yyyy}-${mm}-${dd}`;
     };
 
+    const formatFeedbackDateTime = (v) => {
+        if (!v) return '';
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toLocaleString('vi-VN');
+    };
+
     const handleAddToCart = async (e, item) => {
         e.preventDefault();
         e.stopPropagation();
@@ -137,6 +196,43 @@ const PartnerMeals = () => {
             window.setTimeout(() => setAddMessage(''), 2800);
         } finally {
             setAddingMealId(null);
+        }
+    };
+
+    const handleSubmitFeedback = async (e) => {
+        e.preventDefault();
+        if (!feedbackEligibility.eligible || feedbackBusy) return;
+
+        const rating = Number(feedbackForm.rating);
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            setFeedbackError('Vui lòng chọn điểm từ 1 đến 5 sao.');
+            return;
+        }
+
+        const comment = (feedbackForm.comment || '').trim();
+        if (!comment) {
+            setFeedbackError('Vui lòng nhập nhận xét trước khi gửi.');
+            return;
+        }
+
+        try {
+            setFeedbackBusy(true);
+            setFeedbackError('');
+            setFeedbackNotice('');
+            await feedbackService.createFeedback({
+                partnerId,
+                rating,
+                comment
+            });
+            setFeedbackForm({ rating: 5, comment: '' });
+            setFeedbackNotice('Cảm ơn bạn đã gửi đánh giá cho quán.');
+            await reloadFeedbackSection();
+        } catch (err) {
+            setFeedbackError(
+                err.response?.data?.message || 'Không thể gửi đánh giá. Vui lòng thử lại.'
+            );
+        } finally {
+            setFeedbackBusy(false);
         }
     };
 
@@ -290,6 +386,115 @@ const PartnerMeals = () => {
                     {addMessage}
                 </div>
             )}
+
+            <section className="partner-feedback-section">
+                <div className="partner-feedback-head">
+                    <h2>Đánh giá từ khách hàng</h2>
+                    <p>
+                        {feedbacks.length > 0
+                            ? `${feedbacks.length} đánh giá cho quán ${partner?.name || ''}`
+                            : 'Chưa có đánh giá nào cho quán này.'}
+                    </p>
+                </div>
+
+                <div className="partner-feedback-layout">
+                    <div className="partner-feedback-list-card">
+                        {feedbacks.length === 0 ? (
+                            <div className="partner-feedback-empty">
+                                Hãy là người đầu tiên chia sẻ trải nghiệm của bạn.
+                            </div>
+                        ) : (
+                            <div className="partner-feedback-list">
+                                {feedbacks.slice(0, 8).map((fb) => (
+                                    <article key={fb.id} className="partner-feedback-item">
+                                        <div className="partner-feedback-item-head">
+                                            <strong>{fb.customerName || 'Khách hàng'}</strong>
+                                            <span>{formatFeedbackDateTime(fb.createdAt)}</span>
+                                        </div>
+                                        <div
+                                            className="partner-feedback-stars"
+                                            aria-label={`${fb.rating || 0} sao`}
+                                        >
+                                            {Array.from({ length: 5 }).map((_, idx) => (
+                                                <Star
+                                                    key={`${fb.id}-star-${idx}`}
+                                                    size={16}
+                                                    className={
+                                                        idx < (fb.rating || 0) ? 'is-on' : 'is-off'
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                        <p>{fb.comment}</p>
+                                    </article>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="partner-feedback-form-card">
+                        <h3>Viết đánh giá</h3>
+                        {!feedbackEligibility.eligible && (
+                            <div className="partner-feedback-lock">
+                                {feedbackEligibility.message ||
+                                    'Bạn cần thanh toán thành công ít nhất 1 bữa ăn từ quán này để đánh giá.'}
+                            </div>
+                        )}
+                        {feedbackEligibility.eligible && (
+                            <form onSubmit={handleSubmitFeedback} className="partner-feedback-form">
+                                <label htmlFor="feedback-rating">Điểm đánh giá</label>
+                                <select
+                                    id="feedback-rating"
+                                    value={feedbackForm.rating}
+                                    onChange={(e) =>
+                                        setFeedbackForm((prev) => ({
+                                            ...prev,
+                                            rating: Number(e.target.value)
+                                        }))
+                                    }
+                                    disabled={feedbackBusy}
+                                >
+                                    <option value={5}>5 sao - Rất hài lòng</option>
+                                    <option value={4}>4 sao - Hài lòng</option>
+                                    <option value={3}>3 sao - Bình thường</option>
+                                    <option value={2}>2 sao - Chưa hài lòng</option>
+                                    <option value={1}>1 sao - Không hài lòng</option>
+                                </select>
+
+                                <label htmlFor="feedback-comment">Nhận xét</label>
+                                <textarea
+                                    id="feedback-comment"
+                                    rows={4}
+                                    placeholder="Món ăn, đóng gói, đúng giờ, chất lượng phục vụ..."
+                                    value={feedbackForm.comment}
+                                    onChange={(e) =>
+                                        setFeedbackForm((prev) => ({
+                                            ...prev,
+                                            comment: e.target.value
+                                        }))
+                                    }
+                                    disabled={feedbackBusy}
+                                />
+
+                                {feedbackError && (
+                                    <div className="partner-feedback-msg partner-feedback-msg-error">
+                                        {feedbackError}
+                                    </div>
+                                )}
+                                {feedbackNotice && (
+                                    <div className="partner-feedback-msg partner-feedback-msg-ok">
+                                        {feedbackNotice}
+                                    </div>
+                                )}
+
+                                <button type="submit" disabled={feedbackBusy}>
+                                    {feedbackBusy ? 'Đang gửi...' : 'Gửi đánh giá'}
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            </section>
 
             {groupedByDayAndMealType.length === 0 ? (
                 <div className="partner-meals-empty">

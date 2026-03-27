@@ -1,6 +1,7 @@
 package com.studentmeal.controller;
 
 import com.studentmeal.dto.FeedbackDTO;
+import com.studentmeal.dto.FeedbackEligibilityDTO;
 import com.studentmeal.dto.FeedbackRequest;
 import com.studentmeal.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,11 @@ public class FeedbackController {
     @GetMapping("/partners/{partnerId}")
     public ResponseEntity<List<FeedbackDTO>> getFeedbacksByPartner(@PathVariable Long partnerId) {
         return ResponseEntity.ok(feedbackService.getFeedbacksByPartner(partnerId));
+    }
+
+    @GetMapping("/partners/{partnerId}/eligibility")
+    public ResponseEntity<FeedbackEligibilityDTO> getMyEligibility(@PathVariable Long partnerId) {
+        return ResponseEntity.ok(feedbackService.getMyEligibilityForPartner(partnerId));
     }
 
     @PostMapping

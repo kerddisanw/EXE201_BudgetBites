@@ -1,18 +1,23 @@
 package com.studentmeal.service;
 
 import com.studentmeal.dto.FeedbackDTO;
+import com.studentmeal.dto.FeedbackEligibilityDTO;
 import com.studentmeal.dto.FeedbackRequest;
 import com.studentmeal.entity.Customer;
 import com.studentmeal.entity.Feedback;
 import com.studentmeal.entity.MealPartner;
+import com.studentmeal.entity.Payment;
 import com.studentmeal.exception.ResourceNotFoundException;
 import com.studentmeal.repository.CustomerRepository;
 import com.studentmeal.repository.FeedbackRepository;
+import com.studentmeal.repository.MealOrderRepository;
 import com.studentmeal.repository.MealPartnerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +29,7 @@ public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final CustomerRepository customerRepository;
     private final MealPartnerRepository mealPartnerRepository;
+    private final MealOrderRepository mealOrderRepository;
 
     @Transactional(readOnly = true)
     public List<FeedbackDTO> getFeedbacksByPartner(Long partnerId) {
@@ -34,13 +40,14 @@ public class FeedbackService {
 
     @Transactional
     public FeedbackDTO createFeedback(FeedbackRequest request) {
-        // Lấy customer từ JWT token - không cần customerId trong request
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        Customer customer = getCurrentCustomer();
 
         MealPartner partner = mealPartnerRepository.findById(request.getPartnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
+        if (!hasPaidOrderWithPartner(customer.getId(), partner.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Bạn chỉ có thể đánh giá sau khi thanh toán thành công ít nhất 1 bữa ăn từ quán này");
+        }
 
         Feedback feedback = new Feedback();
         feedback.setCustomer(customer);
@@ -49,6 +56,33 @@ public class FeedbackService {
         feedback.setComment(request.getComment());
 
         return convertToDTO(feedbackRepository.save(feedback));
+    }
+
+    @Transactional(readOnly = true)
+    public FeedbackEligibilityDTO getMyEligibilityForPartner(Long partnerId) {
+        Customer customer = getCurrentCustomer();
+        mealPartnerRepository.findById(partnerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
+
+        boolean eligible = hasPaidOrderWithPartner(customer.getId(), partnerId);
+        String message = eligible
+                ? "Bạn có thể đánh giá quán này."
+                : "Bạn cần thanh toán thành công ít nhất 1 bữa ăn từ quán này để đánh giá.";
+        return new FeedbackEligibilityDTO(eligible, message);
+    }
+
+    private Customer getCurrentCustomer() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return customerRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+    }
+
+    private boolean hasPaidOrderWithPartner(Long customerId, Long partnerId) {
+        return mealOrderRepository.existsPaidOrderByCustomerAndPartner(
+                customerId,
+                partnerId,
+                Payment.PaymentStatus.COMPLETED
+        );
     }
 
     private FeedbackDTO convertToDTO(Feedback feedback) {

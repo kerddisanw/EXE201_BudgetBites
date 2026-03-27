@@ -98,4 +98,11 @@ export const paymentService = {
     createCartPayOSCheckout: () => api.post('/payments/payos/checkout-cart')
 };
 
+export const feedbackService = {
+    getFeedbacksByPartner: (partnerId) => api.get(`/feedbacks/partners/${partnerId}`),
+    getMyEligibilityForPartner: (partnerId) =>
+        api.get(`/feedbacks/partners/${partnerId}/eligibility`),
+    createFeedback: (data) => api.post('/feedbacks', data)
+};
+
 export default api;
