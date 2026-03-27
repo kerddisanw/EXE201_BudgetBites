@@ -1,7 +1,6 @@
 package com.studentmeal.repository;
 
 import com.studentmeal.entity.MealOrder;
-import com.studentmeal.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,16 +19,13 @@ public interface MealOrderRepository extends JpaRepository<MealOrder, Long> {
     @Query("""
             select (count(mo) > 0)
             from MealOrder mo
-            join Payment p on p.subscription = mo.subscription
             where mo.subscription.customer.id = :customerId
               and mo.partner.id = :partnerId
-              and p.status = :paymentStatus
               and mo.status = :orderStatus
             """)
-    boolean existsPaidOrderByCustomerAndPartner(
+    boolean existsCompletedOrderByCustomerAndPartner(
             Long customerId,
             Long partnerId,
-            Payment.PaymentStatus paymentStatus,
             MealOrder.OrderStatus orderStatus
     );
 }

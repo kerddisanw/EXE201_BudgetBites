@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ArrowLeft, Box, CalendarDays, Store, UtensilsCrossed } from 'lucide-react';
-import { orderService } from '../services/api';
+import { feedbackService, orderService } from '../services/api';
 import './OrderDetails.css';
 
 const OrderDetails = () => {
@@ -10,6 +10,11 @@ const OrderDetails = () => {
     const [order, setOrder] = useState(location.state?.order || null);
     const [loading, setLoading] = useState(!location.state?.order);
     const [error, setError] = useState('');
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState('');
+    const [feedbackError, setFeedbackError] = useState('');
 
     useEffect(() => {
         let mounted = true;
@@ -63,6 +68,36 @@ const OrderDetails = () => {
         if (s === 'PENDING') return 'Chờ xử lý';
         if (s === 'CANCELLED') return 'Đã hủy';
         return status || '—';
+    };
+
+    const canRate = (order?.status || '').toUpperCase() === 'DELIVERED';
+
+    const handleSubmitFeedback = async (e) => {
+        e.preventDefault();
+        if (!canRate || submitting) return;
+        if (!comment.trim()) {
+            setFeedbackError('Vui lòng nhập nhận xét trước khi gửi.');
+            return;
+        }
+        try {
+            setSubmitting(true);
+            setFeedbackError('');
+            setFeedbackMessage('');
+            await feedbackService.createFeedback({
+                partnerId: order.partnerId,
+                rating,
+                comment: comment.trim()
+            });
+            setFeedbackMessage('Đánh giá đã được gửi. Cảm ơn bạn!');
+            setComment('');
+            setRating(5);
+        } catch (err) {
+            setFeedbackError(
+                err.response?.data?.message || 'Không thể gửi đánh giá. Vui lòng thử lại.'
+            );
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     if (loading) {
@@ -139,6 +174,56 @@ const OrderDetails = () => {
                             <span className="value order-details-price">{formatMoney(order.price)}</span>
                         </div>
                     </div>
+                </div>
+
+                <div className="order-feedback-card">
+                    <h2>Đánh giá bữa ăn</h2>
+                    {!canRate ? (
+                        <p className="order-feedback-note">
+                            Bạn có thể đánh giá khi đơn ở trạng thái Hoàn thành.
+                        </p>
+                    ) : (
+                        <form className="order-feedback-form" onSubmit={handleSubmitFeedback}>
+                            <label htmlFor="order-rating">Số sao</label>
+                            <select
+                                id="order-rating"
+                                value={rating}
+                                onChange={(e) => setRating(Number(e.target.value))}
+                                disabled={submitting}
+                            >
+                                <option value={5}>5 sao - Rất hài lòng</option>
+                                <option value={4}>4 sao - Hài lòng</option>
+                                <option value={3}>3 sao - Bình thường</option>
+                                <option value={2}>2 sao - Chưa hài lòng</option>
+                                <option value={1}>1 sao - Không hài lòng</option>
+                            </select>
+
+                            <label htmlFor="order-comment">Nhận xét</label>
+                            <textarea
+                                id="order-comment"
+                                rows={4}
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="Chia sẻ trải nghiệm món ăn, đóng gói, thời gian giao..."
+                                disabled={submitting}
+                            />
+
+                            {feedbackError && (
+                                <div className="order-feedback-msg order-feedback-msg-error">
+                                    {feedbackError}
+                                </div>
+                            )}
+                            {feedbackMessage && (
+                                <div className="order-feedback-msg order-feedback-msg-ok">
+                                    {feedbackMessage}
+                                </div>
+                            )}
+
+                            <button type="submit" disabled={submitting}>
+                                {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+                            </button>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>

@@ -7,7 +7,6 @@ import com.studentmeal.entity.Customer;
 import com.studentmeal.entity.Feedback;
 import com.studentmeal.entity.MealOrder;
 import com.studentmeal.entity.MealPartner;
-import com.studentmeal.entity.Payment;
 import com.studentmeal.exception.ResourceNotFoundException;
 import com.studentmeal.repository.CustomerRepository;
 import com.studentmeal.repository.FeedbackRepository;
@@ -45,7 +44,7 @@ public class FeedbackService {
 
         MealPartner partner = mealPartnerRepository.findById(request.getPartnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
-        if (!hasPaidOrderWithPartner(customer.getId(), partner.getId())) {
+        if (!hasCompletedOrderWithPartner(customer.getId(), partner.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Bạn chỉ có thể đánh giá sau khi bữa ăn hoàn thành (Hoàn thành) từ quán này");
         }
@@ -65,7 +64,7 @@ public class FeedbackService {
         mealPartnerRepository.findById(partnerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Partner not found"));
 
-        boolean eligible = hasPaidOrderWithPartner(customer.getId(), partnerId);
+        boolean eligible = hasCompletedOrderWithPartner(customer.getId(), partnerId);
         String message = eligible
                 ? "Bạn có thể đánh giá quán này."
                 : "Bạn cần có ít nhất 1 bữa ăn hoàn thành (Hoàn thành) từ quán này để đánh giá.";
@@ -78,11 +77,10 @@ public class FeedbackService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
     }
 
-    private boolean hasPaidOrderWithPartner(Long customerId, Long partnerId) {
-        return mealOrderRepository.existsPaidOrderByCustomerAndPartner(
+    private boolean hasCompletedOrderWithPartner(Long customerId, Long partnerId) {
+        return mealOrderRepository.existsCompletedOrderByCustomerAndPartner(
                 customerId,
                 partnerId,
-                Payment.PaymentStatus.COMPLETED,
                 MealOrder.OrderStatus.DELIVERED
         );
     }
