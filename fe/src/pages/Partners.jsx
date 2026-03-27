@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Search, Store, MapPin, Phone, ChevronRight } from 'lucide-react';
 import { partnerService } from '../services/api';
 import './Partners.css';
 
@@ -32,6 +33,18 @@ const Partners = () => {
         fetchPartners();
     }, []);
 
+    useEffect(() => {
+        try {
+            const q = sessionStorage.getItem('bb_partner_search');
+            if (q) {
+                setSearch(q);
+                sessionStorage.removeItem('bb_partner_search');
+            }
+        } catch {
+            /* ignore */
+        }
+    }, []);
+
     const handlePartnerClick = (id) => {
         navigate(`/partners/${id}`);
     };
@@ -62,55 +75,88 @@ const Partners = () => {
 
     return (
         <div className="partners-page">
-            <div className="partners-header">
-                <h1>Chọn quán ăn đối tác</h1>
-            </div>
+            <section className="partners-hero">
+                <div className="partners-hero-inner">
+                    <div className="partners-header">
+                        <span className="partners-kicker">
+                            <Store size={15} />
+                            Đối tác BudgetBites
+                        </span>
+                        <h1>Chọn quán ăn đối tác</h1>
+                        <p>
+                            Khám phá các quán ăn chất lượng, giá sinh viên, giao đúng giờ cho lịch học
+                            bận rộn.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
             <div className="partners-toolbar">
-                <input
-                    className="partners-search"
-                    type="text"
-                    placeholder="Tìm kiếm quán ăn, món ăn..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <button type="button" className="partners-filter-btn">
-                    Bộ lọc
+                <div className="partners-search-wrap">
+                    <Search size={18} />
+                    <input
+                        className="partners-search"
+                        type="text"
+                        placeholder="Tìm kiếm quán ăn hoặc mô tả..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+                <button
+                    type="button"
+                    className="partners-filter-btn"
+                    onClick={() => setSearch('')}
+                    disabled={!search}
+                >
+                    Xóa tìm kiếm
                 </button>
             </div>
 
             <div className="partners-grid">
-                {filteredPartners.map((partner) => (
-                    <button
-                        key={partner.id}
-                        className="partner-card partner-card-simple"
-                        type="button"
-                        onClick={() => handlePartnerClick(partner.id)}
-                    >
-                        {partner.imageUrl && (
-                            <div className="partner-image-wrapper">
-                                <img src={partner.imageUrl} alt={partner.name} />
-                                {partner.discountRate > 0 && (
-                                    <span className="partner-badge">Khuyến mãi</span>
-                                )}
-                            </div>
-                        )}
-                        <div className="partner-card-body">
-                            <div className="partner-name-row">
-                                <span className="partner-name">{partner.name}</span>
-                            </div>
-                            <div className="partner-meta">
-                                <span>{partner.address}</span>
+                {filteredPartners.length === 0 ? (
+                    <div className="partners-empty">
+                        <h3>Không tìm thấy quán phù hợp</h3>
+                        <p>Thử từ khóa khác hoặc xóa tìm kiếm để xem tất cả đối tác.</p>
+                    </div>
+                ) : (
+                    filteredPartners.map((partner) => (
+                        <button
+                            key={partner.id}
+                            className="partner-card partner-card-simple"
+                            type="button"
+                            onClick={() => handlePartnerClick(partner.id)}
+                        >
+                            {partner.imageUrl && (
+                                <div className="partner-image-wrapper">
+                                    <img src={partner.imageUrl} alt={partner.name} />
+                                    {partner.discountRate > 0 && (
+                                        <span className="partner-badge">
+                                            -{partner.discountRate}% khuyến mãi
+                                        </span>
+                                    )}
+                                    <span className="partner-open-cta">
+                                        Xem thực đơn <ChevronRight size={14} />
+                                    </span>
+                                </div>
+                            )}
+                            <div className="partner-card-body">
+                                <div className="partner-name-row">
+                                    <span className="partner-name">{partner.name}</span>
+                                </div>
+                                <div className="partner-meta">
+                                    <MapPin size={14} />
+                                    <span>{partner.address || 'TP.HCM'}</span>
+                                </div>
                                 {partner.phoneNumber && (
-                                    <>
-                                        <span className="partner-dot">•</span>
+                                    <div className="partner-meta">
+                                        <Phone size={14} />
                                         <span>{partner.phoneNumber}</span>
-                                    </>
+                                    </div>
                                 )}
                             </div>
-                        </div>
-                    </button>
-                ))}
+                        </button>
+                    ))
+                )}
             </div>
         </div>
     );

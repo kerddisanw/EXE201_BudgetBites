@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    Crown,
+    CheckCircle2,
+    Clock3,
+    ShieldCheck,
+    Wallet,
+    Sparkles,
+    ChevronRight
+} from 'lucide-react';
 import { packageService, subscriptionService, paymentService } from '../services/api';
 import './Packages.css';
 
@@ -60,6 +69,22 @@ function Packages() {
         }
     };
 
+    const formatMoney = (n) => `${Number(n || 0).toLocaleString('vi-VN')}₫`;
+    const formatType = (type) => {
+        const map = {
+            WEEKLY: 'Theo tuần',
+            MONTHLY: 'Theo tháng',
+            FLEXIBLE: 'Linh hoạt'
+        };
+        return map[type] || type || 'Tiêu chuẩn';
+    };
+    const getCardBadge = (pkg, idx) => {
+        if (idx === 0) return 'Phổ biến';
+        if (pkg.durationDays >= 30) return 'Tiết kiệm';
+        if ((pkg.mealsPerDay || 0) >= 3) return 'Nhiều bữa';
+        return 'Đề xuất';
+    };
+
     if (loading) {
         return (
             <div className="packages-page packages-page-loading bb-page-loading">
@@ -70,27 +95,91 @@ function Packages() {
 
     return (
         <div className="packages-page">
-            <section className="packages-header">
-                <div>
-                    <h1>Gói bữa ăn BudgetBites</h1>
-                    <p>
-                        Chọn gói bữa ăn phù hợp với lịch học và ngân sách. Bạn có thể thay đổi hoặc
-                        hủy bất cứ lúc nào.
-                    </p>
+            <section className="packages-hero">
+                <div className="packages-hero-inner">
+                    <div className="packages-hero-copy">
+                        <span className="packages-kicker">
+                            <Sparkles size={16} />
+                            BudgetBites Plans
+                        </span>
+                        <h1>Chọn gói bữa ăn phù hợp với bạn</h1>
+                        <p>
+                            Linh hoạt theo lịch học, giá sinh viên, thanh toán online nhanh chóng.
+                            Bắt đầu chỉ với vài thao tác.
+                        </p>
+                        <div className="packages-hero-points">
+                            <span>
+                                <CheckCircle2 size={16} />
+                                Đổi gói dễ dàng
+                            </span>
+                            <span>
+                                <ShieldCheck size={16} />
+                                Thanh toán an toàn
+                            </span>
+                            <span>
+                                <Clock3 size={16} />
+                                Kích hoạt nhanh
+                            </span>
+                        </div>
+                    </div>
+                    <div className="packages-hero-stat">
+                        <div className="packages-stat-card">
+                            <span className="packages-stat-label">Mức giá từ</span>
+                            <strong className="packages-stat-value">
+                                {formatMoney(
+                                    packages.length > 0
+                                        ? Math.min(...packages.map((p) => Number(p.price || 0)))
+                                        : 0
+                                )}
+                            </strong>
+                            <span className="packages-stat-sub">Gói ăn cho sinh viên</span>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {error && <div className="packages-error">{error}</div>}
 
+            <section className="packages-trust">
+                <div className="packages-trust-inner">
+                    <div className="packages-trust-item">
+                        <Wallet size={20} />
+                        <div>
+                            <strong>Giá rõ ràng</strong>
+                            <span>Không phí ẩn, hiển thị đầy đủ trước khi thanh toán</span>
+                        </div>
+                    </div>
+                    <div className="packages-trust-item">
+                        <Crown size={20} />
+                        <div>
+                            <strong>Ưu đãi thành viên</strong>
+                            <span>Nhiều quyền lợi hơn khi duy trì gói dài ngày</span>
+                        </div>
+                    </div>
+                    <div className="packages-trust-item">
+                        <ShieldCheck size={20} />
+                        <div>
+                            <strong>Đảm bảo chất lượng</strong>
+                            <span>Quán đối tác được kiểm duyệt trước khi lên hệ thống</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <div className="packages-grid">
-                {packages.map((pkg) => (
+                {packages.map((pkg, idx) => {
+                    const price = Number(pkg.price || 0);
+                    const duration = Number(pkg.durationDays || 0);
+                    const mealsPerDay = Number(pkg.mealsPerDay || 0);
+                    const totalMeals = duration > 0 && mealsPerDay > 0 ? duration * mealsPerDay : null;
+                    const pricePerMeal = totalMeals ? Math.round(price / totalMeals) : null;
+                    return (
                     <article key={pkg.id} className="package-card">
+                        <span className="package-badge">{getCardBadge(pkg, idx)}</span>
                         <header className="package-card-header">
                             <h2 className="package-name">{pkg.name}</h2>
                             <div className="package-price">
-                                <span className="price-main">
-                                    {pkg.price?.toLocaleString('vi-VN')}₫
-                                </span>
+                                <span className="price-main">{formatMoney(pkg.price)}</span>
                                 {pkg.durationDays ? (
                                     <span className="price-sub">
                                         / {pkg.durationDays} ngày
@@ -113,13 +202,21 @@ function Packages() {
                             {pkg.packageType && (
                                 <p>
                                     <span className="detail-label">Loại gói</span>
-                                    <span className="detail-value">{pkg.packageType}</span>
+                                    <span className="detail-value">{formatType(pkg.packageType)}</span>
                                 </p>
                             )}
                             {pkg.partnerName && (
                                 <p>
                                     <span className="detail-label">Đối tác chính</span>
                                     <span className="detail-value">{pkg.partnerName}</span>
+                                </p>
+                            )}
+                            {pricePerMeal && (
+                                <p>
+                                    <span className="detail-label">Ước tính / bữa</span>
+                                    <span className="detail-value detail-value-accent">
+                                        {formatMoney(pricePerMeal)}
+                                    </span>
                                 </p>
                             )}
                         </div>
@@ -129,10 +226,17 @@ function Packages() {
                             className="subscribe-btn"
                             disabled={busyPackageId === pkg.id}
                         >
-                            {busyPackageId === pkg.id ? 'Đang tạo thanh toán...' : 'Đăng ký gói này'}
+                            {busyPackageId === pkg.id ? (
+                                'Đang tạo thanh toán...'
+                            ) : (
+                                <>
+                                    Đăng ký gói này <ChevronRight size={16} />
+                                </>
+                            )}
                         </button>
                     </article>
-                ))}
+                );
+                })}
             </div>
         </div>
     );

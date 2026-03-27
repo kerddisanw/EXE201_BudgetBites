@@ -1,8 +1,7 @@
 .partners-page {
     min-height: calc(100vh - 120px);
-    padding: 32px 28px 28px;
-    background: radial-gradient(circle at top left, #ffedd5 0, transparent 45%),
-        radial-gradient(circle at bottom right, #dbeafe 0, transparent 50%), #f9fafb;
+    padding: 24px 20px 30px;
+    background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
 }
 
 .partners-steps {
@@ -49,41 +48,112 @@
 }
 
 .partners-header {
-    max-width: 900px;
-    margin: 0 auto 12px;
+    max-width: none;
+    margin: 0;
     text-align: left;
 }
 
 .partners-header h1 {
-    font-size: 1.7rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 8px;
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    color: #f9fafb;
+    margin: 8px 0 8px;
 }
 
 .partners-header p {
+    max-width: 620px;
+    margin: 0;
     font-size: 0.95rem;
-    color: #6b7280;
+    color: #e5e7eb;
+    line-height: 1.6;
 }
 
-.partners-toolbar {
-    max-width: 900px;
-    margin: 0 auto 18px;
-    display: flex;
+.partners-hero {
+    max-width: 1160px;
+    margin: 0 auto 16px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(120deg, #111827 0%, #1f2937 55%, #f97316 125%);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.26);
+}
+
+.partners-hero-inner {
+    padding: 24px 26px;
+    display: block;
+}
+
+.partners-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f9fafb;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.partners-hero-stats {
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 10px;
 }
 
-.partners-search {
-    flex: 1;
-    border-radius: 999px;
-    border: 1.5px solid #e5e7eb;
-    padding: 9px 14px;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+.partners-stat-card {
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.partners-search:focus {
+.partners-stat-label {
+    display: block;
+    font-size: 0.78rem;
+    color: #e5e7eb;
+    margin-bottom: 2px;
+}
+
+.partners-stat-card strong {
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.partners-toolbar {
+    max-width: 1160px;
+    margin: 0 auto 18px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.partners-search-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 0 12px;
+}
+
+.partners-search-wrap svg {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.partners-search {
+    width: 100%;
+    border: none;
+    padding: 11px 0;
+    font-size: 0.9rem;
+    outline: none;
+    background: transparent;
+}
+
+.partners-search-wrap:focus-within {
     border-color: #f97316;
     box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.18);
 }
@@ -106,21 +176,22 @@
 }
 
 .partners-grid {
-    max-width: 1100px;
+    max-width: 1160px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 18px;
 }
 
 .partner-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 18px;
     border: 1px solid #e5e7eb;
     box-shadow: 0 8px 26px rgba(15, 23, 42, 0.06);
     text-align: left;
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    position: relative;
 }
 
 .partner-card-simple {
@@ -165,17 +236,20 @@
 }
 
 .partner-card-body {
-    padding: 12px 14px 14px;
+    padding: 12px 14px 15px;
+    display: grid;
+    gap: 6px;
 }
 
 .partner-image-wrapper {
     position: relative;
     overflow: hidden;
+    border-bottom: 1px solid #f3f4f6;
 }
 
 .partner-image-wrapper img {
     width: 100%;
-    height: 190px;
+    height: 200px;
     object-fit: cover;
     display: block;
 }
@@ -186,8 +260,23 @@
     left: 10px;
     padding: 4px 10px;
     border-radius: 999px;
-    background: #fee2e2;
-    color: #b91c1c;
+    background: rgba(249, 115, 22, 0.95);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.partner-open-cta {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(17, 24, 39, 0.86);
+    color: #fff;
+    border-radius: 999px;
+    padding: 5px 10px;
     font-size: 0.75rem;
     font-weight: 600;
 }
@@ -196,9 +285,14 @@
     font-size: 0.85rem;
     color: #6b7280;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+}
+
+.partner-meta svg {
+    color: #9ca3af;
+    flex-shrink: 0;
 }
 
 .partner-dot {
@@ -231,6 +325,27 @@
 
 .partners-page-error {
     color: #b91c1c;
+}
+
+.partners-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    border: 1px dashed #d1d5db;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 20px;
+    color: #6b7280;
+}
+
+.partners-empty h3 {
+    margin: 0 0 6px;
+    color: #111827;
+    font-size: 1.08rem;
+}
+
+.partners-empty p {
+    margin: 0;
+    font-size: 0.92rem;
 }
 
 .cart-toast {
@@ -414,15 +529,25 @@
 
 @media (max-width: 768px) {
     .partners-page {
-        padding: 24px 16px 20px;
+        padding: 18px 14px 20px;
     }
 
     .partners-steps {
         display: none;
     }
 
+    .partners-hero-inner {
+        grid-template-columns: 1fr;
+        padding: 18px 16px;
+    }
+
     .partners-header h1 {
         font-size: 1.4rem;
+    }
+
+    .partners-toolbar {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
@@ -433,7 +558,7 @@
 .partner-meals-page {
     min-height: calc(100vh - 120px);
     padding-bottom: 48px;
-    background: #f8fafc;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 }
 
 .partner-meals-loading {
@@ -445,9 +570,14 @@
 
 .partner-meals-hero {
     position: relative;
+    max-width: 1160px;
+    margin: 14px auto 0;
+    border-radius: 24px;
+    overflow: hidden;
     padding: 24px 24px 32px;
-    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    background: linear-gradient(120deg, #111827 0%, #1f2937 52%, #f97316 130%);
     color: #ffffff;
+    box-shadow: 0 20px 56px rgba(15, 23, 42, 0.25);
 }
 
 .partner-meals-hero-bg {
@@ -468,7 +598,7 @@
 
 .partner-meals-hero-inner {
     position: relative;
-    max-width: 1100px;
+    max-width: 1120px;
     margin: 0 auto;
 }
 
@@ -495,8 +625,8 @@
 }
 
 .partner-meals-hero-image {
-    width: 80px;
-    height: 80px;
+    width: 92px;
+    height: 92px;
     border-radius: 16px;
     overflow: hidden;
     flex-shrink: 0;
@@ -510,8 +640,8 @@
 }
 
 .partner-meals-hero-placeholder {
-    width: 80px;
-    height: 80px;
+    width: 92px;
+    height: 92px;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.12);
     display: flex;
@@ -522,7 +652,7 @@
 
 .partner-meals-hero-text h1 {
     margin: 0 0 6px;
-    font-size: 1.6rem;
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
     font-weight: 800;
     color: #ffffff;
 }
@@ -536,8 +666,29 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
+.partner-meals-hero-meta {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.partner-meals-hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #f9fafb;
+}
+
 .partner-meals-toolbar {
-    max-width: 1100px;
+    max-width: 1120px;
     margin: 20px auto 20px;
     padding: 16px 24px;
     display: flex;
@@ -553,6 +704,13 @@
     z-index: 1;
 }
 
+.partner-meals-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
 .partner-meals-date-wrap {
     display: flex;
     align-items: center;
@@ -563,6 +721,12 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: #475569;
+}
+
+.partner-meals-toolbar-note {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.84rem;
 }
 
 .partner-meals-date-input {
@@ -725,9 +889,27 @@
 }
 
 .partner-meals-content {
-    max-width: 1100px;
+    max-width: 1120px;
     margin: 0 auto;
     padding: 0 24px;
+}
+
+.partner-meals-section-head {
+    max-width: 1120px;
+    margin: 0 auto 12px;
+    padding: 0 24px;
+}
+
+.partner-meals-section-head h2 {
+    margin: 0 0 4px;
+    font-size: 1.2rem;
+    color: #111827;
+}
+
+.partner-meals-section-head p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
 }
 
 .partner-meals-period {
@@ -750,13 +932,13 @@
 
 .partner-meals-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 18px;
 }
 
 .partner-meal-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
     border: 1px solid #e5e7eb;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
@@ -835,11 +1017,13 @@
 }
 
 .partner-meal-card-body {
-    padding: 14px 16px;
+    padding: 14px 16px 16px;
+    display: grid;
+    gap: 6px;
 }
 
 .partner-meal-name {
-    margin: 0 0 6px;
+    margin: 0;
     font-size: 1rem;
     font-weight: 700;
     color: #111827;
@@ -854,10 +1038,12 @@
     font-size: 1rem;
     font-weight: 700;
     color: #f97316;
+    display: inline-flex;
+    align-items: center;
 }
 
 .partner-feedback-section {
-    max-width: 1100px;
+    max-width: 1120px;
     margin: 0 auto 20px;
     padding: 0 24px;
 }
@@ -1042,6 +1228,8 @@
 
 @media (max-width: 768px) {
     .partner-meals-hero {
+        margin: 10px 12px 0;
+        border-radius: 18px;
         padding: 20px 16px 28px;
     }
 
@@ -1064,9 +1252,21 @@
         padding: 14px 16px;
     }
 
+    .partner-meals-toolbar-left {
+        width: 100%;
+    }
+
     .partner-meals-date-wrap {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .partner-meals-toolbar-note {
+        font-size: 0.82rem;
+    }
+
+    .partner-meals-section-head {
+        padding: 0 16px;
     }
 
     .partner-meals-day-tabs {

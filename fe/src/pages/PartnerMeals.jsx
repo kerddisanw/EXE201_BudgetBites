@@ -302,6 +302,13 @@ const PartnerMeals = () => {
     }, [groupedByDayAndMealType, selectedDayKey]);
 
     const currentDay = groupedByDayAndMealType.find((d) => d.key === selectedDayKey);
+    const averageRating = useMemo(() => {
+        const nums = feedbacks
+            .map((f) => Number(f.rating))
+            .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
+        if (nums.length === 0) return null;
+        return nums.reduce((a, b) => a + b, 0) / nums.length;
+    }, [feedbacks]);
 
     if (loading) {
         return (
@@ -353,6 +360,18 @@ const PartnerMeals = () => {
                                     {partner.address}
                                 </p>
                             )}
+                            <div className="partner-meals-hero-meta">
+                                <span className="partner-meals-hero-chip">
+                                    <Star size={14} />
+                                    {averageRating ? averageRating.toFixed(1) : 'N/A'}
+                                </span>
+                                <span className="partner-meals-hero-chip">
+                                    {feedbacks.length} đánh giá
+                                </span>
+                                <span className="partner-meals-hero-chip">
+                                    {groupedByDayAndMealType.length} ngày có thực đơn
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -360,21 +379,31 @@ const PartnerMeals = () => {
 
             {/* Order date & Cart CTA */}
             <div className="partner-meals-toolbar">
-                <div className="partner-meals-date-wrap">
-                    <label htmlFor="order-date">Ngày đặt bữa:</label>
-                    <input
-                        id="order-date"
-                        type="date"
-                        className="partner-meals-date-input"
-                        value={orderDate}
-                        onChange={(e) => setOrderDate(e.target.value)}
-                    />
+                <div className="partner-meals-toolbar-left">
+                    <div className="partner-meals-date-wrap">
+                        <label htmlFor="order-date">Ngày đặt bữa:</label>
+                        <input
+                            id="order-date"
+                            type="date"
+                            className="partner-meals-date-input"
+                            value={orderDate}
+                            onChange={(e) => setOrderDate(e.target.value)}
+                        />
+                    </div>
+                    <p className="partner-meals-toolbar-note">
+                        Chọn ngày trước khi thêm món vào giỏ hàng.
+                    </p>
                 </div>
                 <Link to="/cart" className="partner-meals-cart-cta">
                     <ShoppingCart size={20} />
                     <span>Xem giỏ hàng</span>
                 </Link>
             </div>
+
+            <section className="partner-meals-section-head">
+                <h2>Thực đơn theo ngày</h2>
+                <p>Chọn thứ trong tuần và thêm món bạn muốn vào giỏ.</p>
+            </section>
 
             {/* Toast */}
             {addMessage && (
