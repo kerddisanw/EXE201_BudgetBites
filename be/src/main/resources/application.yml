@@ -92,3 +92,12 @@ payos:
 
 # return-url: ${PAYOS_RETURN_URL:http://localhost:5173/payment-success}
 #cancel-url: ${PAYOS_CANCEL_URL:http://localhost:5173/payment-cancel}
+
+# ─────────────────────────────────────────────────────────
+# Gemini Chatbot Configuration
+# Set GEMINI_API_KEY env var to enable AI-powered responses.
+# If left blank the chatbot uses the built-in rule-based engine.
+# ─────────────────────────────────────────────────────────
+gemini:
+  api-key: AIzaSyCLGoyDvct-9vBONG-Ph03d_2n6m5ST9I0
+

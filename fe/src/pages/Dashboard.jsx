@@ -16,7 +16,7 @@ import {
     Quote,
     Star
 } from 'lucide-react';
-import { feedbackService, menuService, partnerService } from '../services/api';
+import { feedbackService, menuService, partnerService, packageService } from '../services/api';
 import './Dashboard.css';
 
 const POPULAR_DISHES_SEEDS = [
@@ -145,6 +145,8 @@ function Dashboard() {
     const [partnerRatings, setPartnerRatings] = useState({});
     const [testimonials, setTestimonials] = useState([]);
     const [testimonialsReady, setTestimonialsReady] = useState(false);
+    const [packages, setPackages] = useState([]);
+    const [packagesLoading, setPackagesLoading] = useState(true);
 
     const normalizeText = (s) => {
         if (!s) return '';
@@ -259,6 +261,13 @@ function Dashboard() {
                     setPartnerRatings(ratingsMap);
                     setTestimonials(newest);
                     setTestimonialsReady(true);
+                }
+
+                // Fetch packages for upsell
+                const pkgRes = await packageService.getAllPackages();
+                if (mounted) {
+                    setPackages(Array.isArray(pkgRes.data) ? pkgRes.data.slice(0, 3) : []);
+                    setPackagesLoading(false);
                 }
 
                 // Populate "popular dishes" with real menu pictures (item.imageUrl).
@@ -431,6 +440,50 @@ function Dashboard() {
                     </div>
                 </div>
             </section>
+
+            <section className="home-section home-packages">
+                <div className="home-section-inner">
+                    <div className="home-packages-head">
+                        <span className="home-packages-badge">Tiết kiệm tối đa</span>
+                        <h2 className="home-section-title">Gói Ăn Tuần Phổ Biến</h2>
+                        <p className="home-section-lead">
+                            Tiết kiệm đến 30% khi đăng ký theo gói. Bữa ăn chất lượng, giao tận nơi đúng giờ.
+                        </p>
+                    </div>
+                    <div className="home-packages-grid">
+                        {packagesLoading
+                            ? [1, 2, 3].map((i) => (
+                                  <div key={i} className="home-package-card home-package-card--skeleton" />
+                              ))
+                            : packages.map((pkg, idx) => {
+                                const Icon = idx === 0 ? Clock : idx === 1 ? Crown : Sparkles;
+                                return (
+                                  <div key={pkg.id} className={`home-package-card ${idx === 1 ? 'home-package-card--popular' : ''}`}>
+                                      {idx === 1 && <div className="home-package-trending">Khuyên dùng</div>}
+                                      <div className="home-package-icon">
+                                          <Icon size={32} />
+                                      </div>
+                                      <h3>{pkg.packageName}</h3>
+                                      <div className="home-package-price">
+                                          <span className="price-val">{fmtMoney(pkg.price)}</span>
+                                          <span className="price-unit">/{pkg.durationDays} ngày</span>
+                                      </div>
+                                      <p className="home-package-desc">{pkg.description}</p>
+                                      <ul className="home-package-features">
+                                          <li><Star size={14} /> {pkg.totalMeals} bữa ăn tươi ngon</li>
+                                          <li><Star size={14} /> Thực đơn đa dạng mỗi ngày</li>
+                                          <li><Star size={14} /> Miễn phí phí dịch vụ</li>
+                                      </ul>
+                                      <Link to="/packages" className="home-package-btn">
+                                          Chọn gói ngay
+                                      </Link>
+                                  </div>
+                                );
+                            })}
+                    </div>
+                </div>
+            </section>
+
 
             <section className="home-section home-dishes">
                 <div className="home-section-inner">

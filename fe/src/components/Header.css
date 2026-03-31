@@ -1,135 +1,133 @@
 .bb-header {
-    background-color: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .bb-header-inner {
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
-    padding: 12px 32px;
+    padding: 16px 32px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 24px;
+    justify-content: space-between;
 }
 
 .bb-logo {
-    font-weight: 700;
-    font-size: 1.25rem;
-    letter-spacing: 0.03em;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
 }
 
 .bb-logo-primary {
-    color: #f97316; /* orange */
+    color: #f97316;
 }
 
 .bb-logo-accent {
-    color: #22c55e; /* green */
-    margin-left: 2px;
+    color: #1e293b;
 }
 
 .bb-nav {
     display: flex;
     align-items: center;
-    gap: 28px; /* spacing between menu items */
-    margin-left: auto; /* push menu (and account button) to the right */
+    gap: 32px;
 }
 
 .bb-nav-link {
     position: relative;
     font-size: 0.95rem;
-    color: #4b5563;
+    color: #64748b;
     text-decoration: none;
-    padding: 6px 0;
-    font-weight: 600; /* make text bold */
-    transition: color 0.2s ease;
+    padding: 8px 0;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.bb-nav-link:hover {
+    color: #f97316;
+}
+
+.bb-nav-link-active {
+    color: #f97316;
 }
 
 .bb-nav-link::after {
     content: '';
     position: absolute;
-    left: 0;
     bottom: 0;
+    left: 50%;
     width: 0;
     height: 2px;
     background: #f97316;
-    transition: width 0.2s ease;
-}
-
-.bb-nav-link:hover {
-    color: #111827;
-}
-
-.bb-nav-link-active {
-    color: #f97316;
-    font-weight: 600;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+    border-radius: 99px;
 }
 
 .bb-nav-link-active::after {
-    width: 100%;
+    width: 20px;
 }
 
 .bb-cart-link {
     position: relative;
-    width: 36px;
-    height: 36px;
-    border-radius: 999px;
-    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    color: #4b5563;
-    text-decoration: none;
-    transition: background-color 0.18s ease, color 0.18s ease, transform 0.16s ease;
+    color: #64748b;
+    background: #f1f5f9;
+    transition: all 0.3s ease;
 }
 
 .bb-cart-link:hover {
-    background: #f3f4f6;
-    color: #111827;
-    transform: translateY(-1px);
+    background: #f97316;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
 }
 
 .bb-cart-link-active {
-    background: #fff7ed;
-    color: #f97316;
+    background: #f97316;
+    color: #fff;
 }
 
 .bb-cart-badge {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: #f97316;
-    color: #ffffff;
+    top: -6px;
+    right: -6px;
+    background: #ef4444;
+    color: #fff;
     font-size: 0.7rem;
-    font-weight: 700;
-    line-height: 18px;
-    border: 2px solid #ffffff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 99px;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-
-
-.bb-account-btn:hover {
-    color: #ea580c;
-}
-
-.bb-account-btn:active {
-    color: #c2410c;
-}
-
-@media (max-width: 768px) {
-    .bb-header-inner {
-        padding: 10px 16px;
-        gap: 16px;
+@media (max-width: 1024px) {
+    .bb-nav {
+        gap: 20px;
     }
+    .bb-nav-link {
+        font-size: 0.85rem;
+    }
+}
 
+@media (max-width: 860px) {
     .bb-nav {
         display: none;
     }
 }
-

@@ -4,6 +4,7 @@ import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { authService } from '../services/api';
 import './Auth.css';
 import AuthFooter from '../components/AuthFooter';
+import heroImg from '../assets/images/student_meal_hero.png';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -93,31 +94,54 @@ function Login({ initialMode = 'login' }) {
     return (
         <>
             <div className="auth-page">
-                <div className="auth-hero">
-                    <div className="auth-hero-badge">BudgetBites</div>
-                    <h1 className="auth-hero-title">Bữa ăn sinh viên thông minh mỗi ngày</h1>
-                    <p className="auth-hero-subtitle">
-                        Lên lịch bữa ăn tuần, chọn đối tác yêu thích và tối ưu chi tiêu mà vẫn đầy đủ
-                        dinh dưỡng.
-                    </p>
-                    <ul className="auth-hero-list">
-                        <li>• Theo dõi chi phí bữa ăn theo tuần / tháng</li>
-                        <li>• Chọn quán ăn đối tác gần bạn</li>
-                        <li>• Đặt trước để luôn có suất ăn đúng giờ</li>
-                    </ul>
+                <div className="auth-hero-section">
+                    <img 
+                        src={heroImg} 
+                        alt="Student Meal Hero" 
+                        className="auth-hero-img" 
+                    />
+                    <div className="auth-hero-overlay"></div>
+                    <div className="auth-hero-content">
+                        <div className="auth-hero-badge">BudgetBites • Tiết kiệm - Tiết lợi</div>
+                        <h1 className="auth-hero-title">Bữa ăn sinh viên thông minh mỗi ngày</h1>
+                        <p className="auth-hero-subtitle">
+                            Lên lịch bữa ăn tuần, chọn đối tác yêu thích và tối ưu chi tiêu mà vẫn đầy đủ
+                            dinh dưỡng. Chúng tôi đồng hành cùng bạn học tập tốt hơn qua từng bữa ăn.
+                        </p>
+                        <ul className="auth-hero-list">
+                            <li>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 13L9 17L19 7" stroke="#F97316" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Theo dõi chi phí bữa ăn linh hoạt
+                            </li>
+                            <li>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 13L9 17L19 7" stroke="#F97316" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Đối tác ăn uống uy tín & đa dạng
+                            </li>
+                            <li>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 13L9 17L19 7" stroke="#F97316" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Tiết kiệm thời gian với đặt lịch trước
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
-                <div className="auth-container">
+                <div className="auth-form-section">
                     <div className="auth-card">
                         <div className="auth-header">
-                            <div className="auth-header-title">
-                                {mode === 'login' ? 'Chào mừng trở lại' : 'Đăng ký tài khoản'}
-                            </div>
-                            <div className="auth-header-subtitle">
+                            <h2 className="auth-header-title">
+                                {mode === 'login' ? 'Chào mừng trở lại! 👋' : 'Gia nhập BudgetBites'}
+                            </h2>
+                            <p className="auth-header-subtitle">
                                 {mode === 'login'
                                     ? 'Đăng nhập để tiếp tục quản lý bữa ăn của bạn.'
                                     : 'Chỉ mất chưa đến 1 phút để hoàn tất.'}
-                            </div>
+                            </p>
 
                             <div className="auth-tabs">
                                 <button
@@ -142,100 +166,105 @@ function Login({ initialMode = 'login' }) {
                         </div>
 
                         <div className="auth-card-inner" key={mode}>
-                        {error && <div className="error-message">{error}</div>}
+                            {error && <div className="error-message">{error}</div>}
 
-                        <form onSubmit={handleSubmit}>
-                            {mode === 'register' && (
+                            <form onSubmit={handleSubmit}>
+                                {mode === 'register' && (
+                                    <div className="form-group">
+                                        <label>Họ và tên</label>
+                                        <input
+                                            type="text"
+                                            name="fullName"
+                                            placeholder="Nguyễn Văn A"
+                                            value={formData.fullName}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+                                )}
                                 <div className="form-group">
-                                    <label>Họ và tên</label>
+                                    <label>Email</label>
                                     <input
-                                        type="text"
-                                        name="fullName"
-                                        value={formData.fullName}
+                                        type="email"
+                                        name="email"
+                                        placeholder="yourname@gmail.com"
+                                        value={formData.email}
                                         onChange={handleChange}
                                         required
                                     />
                                 </div>
-                            )}
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Mật khẩu</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                    minLength={mode === 'register' ? 6 : undefined}
-                                />
-                            </div>
-                            {mode === 'register' && (
-                                <>
-                                    <div className="form-group">
-                                        <label>Xác nhận mật khẩu</label>
-                                        <input
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={formData.confirmPassword}
-                                            onChange={handleChange}
-                                            required
-                                            minLength={6}
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Số điện thoại</label>
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={formData.phoneNumber}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </>
-                            )}
-                            <button type="submit" disabled={loading}>
-                                {loading
-                                    ? mode === 'login'
-                                        ? 'Đang đăng nhập...'
-                                        : 'Đang đăng ký...'
-                                    : mode === 'login'
-                                      ? 'Đăng nhập'
-                                      : 'Đăng ký'}
-                            </button>
-                        </form>
-
-                        {mode === 'login' && (
-                            <>
-                                <div className="divider">
-                                    <span>hoặc</span>
+                                <div className="form-group">
+                                    <label>Mật khẩu</label>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                        minLength={mode === 'register' ? 6 : undefined}
+                                    />
                                 </div>
-
-                                {GOOGLE_CLIENT_ID ? (
-                                    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                                        <div className="google-btn-wrapper">
-                                            <GoogleLogin
-                                                onSuccess={handleGoogleSuccess}
-                                                onError={handleGoogleError}
-                                                useOneTap={false}
-                                                width="100%"
-                                                text="signin_with"
-                                                shape="rectangular"
-                                                logo_alignment="left"
+                                {mode === 'register' && (
+                                    <>
+                                        <div className="form-group">
+                                            <label>Xác nhận mật khẩu</label>
+                                            <input
+                                                type="password"
+                                                name="confirmPassword"
+                                                placeholder="••••••••"
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                required
+                                                minLength={6}
                                             />
                                         </div>
-                                    </GoogleOAuthProvider>
-                                ) : null}
-                            </>
-                        )}
+                                        <div className="form-group">
+                                            <label>Số điện thoại</label>
+                                            <input
+                                                type="tel"
+                                                name="phoneNumber"
+                                                placeholder="0987xxxxxx"
+                                                value={formData.phoneNumber}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                                <button className="auth-submit-btn" type="submit" disabled={loading}>
+                                    {loading
+                                        ? mode === 'login'
+                                            ? 'Đang kết nối...'
+                                            : 'Đang khởi tạo...'
+                                        : mode === 'login'
+                                          ? 'Bắt đầu ngay'
+                                          : 'Hoàn tất đăng ký'}
+                                </button>
+                            </form>
+
+                            {mode === 'login' && (
+                                <>
+                                    <div className="divider">
+                                        <span>Hoặc sử dụng</span>
+                                    </div>
+
+                                    {GOOGLE_CLIENT_ID ? (
+                                        <div className="google-btn-wrapper">
+                                            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                                                <GoogleLogin
+                                                    onSuccess={handleGoogleSuccess}
+                                                    onError={handleGoogleError}
+                                                    useOneTap={false}
+                                                    width="100%"
+                                                    text="signin_with"
+                                                    shape="pill"
+                                                    logo_alignment="left"
+                                                />
+                                            </GoogleOAuthProvider>
+                                        </div>
+                                    ) : null}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

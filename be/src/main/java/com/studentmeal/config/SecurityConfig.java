@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subscriptions/active").permitAll()
 
+                        // POST /api/chatbot requires JWT – covered by anyRequest().authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 

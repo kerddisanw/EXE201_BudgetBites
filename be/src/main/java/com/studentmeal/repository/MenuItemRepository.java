@@ -15,4 +15,7 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
 
     // Lấy tất cả món của 1 partner theo ngày trong tuần (join qua WeeklyMenu)
     List<MenuItem> findByMenuPartnerIdAndDayOfWeek(Long partnerId, MenuItem.DayOfWeek dayOfWeek);
+
+    // Lấy tất cả món theo ngày trong tuần (chatbot – không cần lọc partner)
+    List<MenuItem> findByDayOfWeek(MenuItem.DayOfWeek dayOfWeek);
 }
