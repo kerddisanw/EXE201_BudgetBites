@@ -684,7 +684,7 @@
     display: block;
     font-size: 2rem;
     font-weight: 800;
-    color: #ffedd5;
+    color: var(--bb-orange);
     line-height: 1;
     margin-bottom: 10px;
 }

@@ -1,11 +1,89 @@
-/* ============================================
-   Account Dashboard (Redesigned)
-   ============================================ */
+/* Account dashboard + shared order list styles (OrderHistory) */
 
 .account-page {
+    --acc-orange: #f97316;
+    --acc-orange-dark: #ea580c;
+    --acc-orange-soft: #fff7ed;
+    --acc-green: #22c55e;
+    --acc-slate: #0f172a;
+    --acc-text: #1e293b;
+    --acc-muted: #64748b;
+    --acc-border: #e2e8f0;
+    --acc-bg: #f8fafc;
     min-height: calc(100vh - 120px);
     display: flex;
-    background: linear-gradient(135deg, #fefce8 0%, #f9fafb 50%, #f0fdf4 100%);
+    flex-direction: column;
+    background: var(--acc-bg);
+    color: var(--acc-text);
+}
+
+/* —— Hero (Account only) —— */
+.account-hero {
+    background: linear-gradient(115deg, #ea580c 0%, #f97316 42%, #16a34a 100%);
+    color: #fff;
+    padding: 40px 24px 44px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.account-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 100% 0%, rgba(255, 255, 255, 0.18), transparent 55%);
+    pointer-events: none;
+}
+
+.account-hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.account-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    margin-bottom: 14px;
+}
+
+.account-hero-inner h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    margin: 0 0 8px;
+    text-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+.account-hero-lead {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    opacity: 0.95;
+    word-break: break-word;
+}
+
+/* —— Body layout —— */
+.account-body {
+    flex: 1;
+    padding: 24px 24px 48px;
+}
+
+.account-layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
 }
 
 .account-loading {
@@ -13,6 +91,7 @@
     align-items: center;
     justify-content: center;
     padding: 48px;
+    flex: 1;
 }
 
 .account-error-card {
@@ -22,7 +101,7 @@
     padding: 20px 24px;
     text-align: center;
     background: #fef2f2;
-    border: 1px solid #fee2e2;
+    border: 1px solid #fecaca;
     border-radius: 16px;
     color: #b91c1c;
     font-weight: 500;
@@ -32,35 +111,39 @@
 .account-sidebar {
     width: 280px;
     min-width: 280px;
+    position: sticky;
+    top: 88px;
     background: #ffffff;
-    border-right: 1px solid #e5e7eb;
-    padding: 24px 0;
+    border-radius: 20px;
+    border: 1px solid var(--acc-border);
+    padding: 20px 0 16px;
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.07);
 }
 
 .account-profile-card {
-    padding: 0 20px 20px;
-    border-bottom: 1px solid #f3f4f6;
-    margin-bottom: 16px;
+    padding: 0 18px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 12px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
 }
 
 .account-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #fb923c, #f97316);
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fb923c, var(--acc-orange));
     color: #ffffff;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
 }
 
 .account-profile-info {
@@ -73,17 +156,26 @@
 .account-user-name {
     font-weight: 700;
     font-size: 0.95rem;
-    color: #111827;
+    color: var(--acc-slate);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.account-user-email {
+    font-size: 0.78rem;
+    color: var(--acc-muted);
+    line-height: 1.35;
+    word-break: break-all;
 }
 
 .account-vip-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 2px 8px;
+    padding: 3px 10px;
+    margin-top: 2px;
+    width: fit-content;
     background: linear-gradient(135deg, #fef3c7, #fde68a);
     color: #b45309;
     font-size: 0.7rem;
@@ -95,45 +187,48 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 0 12px;
+    gap: 3px;
+    padding: 0 10px;
     overflow-y: auto;
+    max-height: min(52vh, 520px);
 }
 
 .account-nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
+    padding: 10px 12px;
     border-radius: 12px;
-    color: #4b5563;
-    font-size: 0.9rem;
+    color: var(--acc-muted);
+    font-size: 0.88rem;
     font-weight: 500;
     text-decoration: none;
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
 .account-nav-item:hover {
-    background: #f9fafb;
-    color: #111827;
+    background: var(--acc-bg);
+    color: var(--acc-text);
 }
 
 .account-nav-active {
-    background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    color: #ffffff !important;
+    background: var(--acc-orange-soft) !important;
+    color: var(--acc-orange-dark) !important;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.2);
 }
 
 .account-logout-btn {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 16px 12px 0;
-    padding: 10px 14px;
+    margin: 12px 10px 0;
+    padding: 10px 12px;
     border: none;
     border-radius: 12px;
     background: transparent;
-    color: #b91c1c;
-    font-size: 0.9rem;
+    color: #dc2626;
+    font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.18s ease;
@@ -143,48 +238,42 @@
     background: #fef2f2;
 }
 
-/* Main content */
+/* Main */
 .account-main {
     flex: 1;
-    padding: 32px 40px 48px;
-    overflow-x: hidden;
+    min-width: 0;
+    padding: 0;
 }
 
-.account-greeting {
-    margin: 0 0 28px;
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: #111827;
-}
-
-/* Stats row */
+/* Stats */
 .account-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin-bottom: 32px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
 }
 
 .account-stat-card {
     background: #ffffff;
-    border-radius: 16px;
-    padding: 20px 22px;
+    border-radius: 18px;
+    padding: 20px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-    border: 1px solid #f3f4f6;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--acc-border);
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .account-stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+    border-color: #cbd5e1;
 }
 
 .account-stat-icon {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -208,17 +297,19 @@
 }
 
 .account-stat-value {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
     font-weight: 800;
-    color: #111827;
+    color: var(--acc-slate);
+    letter-spacing: -0.02em;
 }
 
 .account-stat-label {
-    font-size: 0.85rem;
-    color: #6b7280;
+    font-size: 0.82rem;
+    color: var(--acc-muted);
+    font-weight: 500;
 }
 
-/* Section */
+/* Sections */
 .account-section {
     margin-bottom: 28px;
 }
@@ -227,15 +318,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .account-section-header h2,
 .account-section-title {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--acc-slate);
 }
 
 .account-view-all {
@@ -245,48 +337,49 @@
     padding: 0;
     border: none;
     background: none;
-    color: #f97316;
-    font-size: 0.9rem;
+    color: var(--acc-orange);
+    font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
     transition: color 0.18s ease;
 }
 
 .account-view-all:hover {
-    color: #ea580c;
+    color: var(--acc-orange-dark);
 }
 
-/* Order list */
+/* Order list (shared) */
 .account-order-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .account-order-card {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
+    gap: 14px;
+    padding: 14px 18px;
     background: #ffffff;
-    border-radius: 14px;
-    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    border: 1px solid var(--acc-border);
     cursor: pointer;
     transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .account-order-card:hover {
-    background: #fefce8;
-    border-color: #fde68a;
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.15);
+    background: var(--acc-orange-soft);
+    border-color: rgba(249, 115, 22, 0.28);
+    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.08);
 }
 
 .account-order-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #ffedd5;
-    color: #c2410c;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--acc-orange-soft);
+    color: var(--acc-orange-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -302,19 +395,19 @@
 
 .account-order-name {
     font-weight: 600;
-    font-size: 0.95rem;
-    color: #111827;
+    font-size: 0.93rem;
+    color: var(--acc-slate);
 }
 
 .account-order-meta {
-    font-size: 0.82rem;
-    color: #6b7280;
+    font-size: 0.8rem;
+    color: var(--acc-muted);
 }
 
 .account-order-status {
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
 }
 
@@ -329,102 +422,118 @@
 }
 
 .account-status-cancelled {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: #f1f5f9;
+    color: var(--acc-muted);
 }
 
 .account-order-price {
     font-weight: 700;
-    font-size: 0.95rem;
-    color: #111827;
+    font-size: 0.93rem;
+    color: var(--acc-slate);
 }
 
 .account-empty-orders {
-    padding: 48px 24px;
+    padding: 44px 24px;
     background: #ffffff;
-    border-radius: 16px;
-    border: 1px dashed #e5e7eb;
+    border-radius: 18px;
+    border: 1px dashed #cbd5e1;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    color: #6b7280;
+    color: var(--acc-muted);
 }
 
 .account-empty-orders svg {
-    opacity: 0.5;
+    opacity: 0.45;
+    color: var(--acc-orange);
 }
 
 .account-order-cta {
-    padding: 8px 20px;
-    border-radius: 999px;
+    padding: 10px 22px;
+    border-radius: 14px;
     border: none;
-    background: #f97316;
+    background: var(--acc-orange);
     color: #ffffff;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
     transition: background-color 0.18s ease, transform 0.18s ease;
 }
 
 .account-order-cta:hover {
-    background: #ea580c;
+    background: var(--acc-orange-dark);
     transform: translateY(-1px);
 }
 
-/* Subscription card */
+/* Subscription */
 .account-subscription-section .account-section-title {
     margin-bottom: 12px;
 }
 
 .account-subs-error {
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fef2f2;
     color: #b91c1c;
-    border: 1px solid #fee2e2;
+    border: 1px solid #fecaca;
     font-size: 0.9rem;
 }
 
 .account-subs-card {
-    padding: 18px 20px;
-    background: #fefce8;
-    border: 1px solid #fde68a;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.08);
+    padding: 20px 22px;
+    background: #ffffff;
+    border: 1px solid var(--acc-border);
+    border-radius: 18px;
+    box-shadow: 0 10px 32px rgba(15, 23, 42, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.account-subs-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--acc-orange), var(--acc-green));
+    border-radius: 4px 0 0 4px;
 }
 
 .account-subs-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-start;
     gap: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #fef08a;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .account-subs-name {
-    font-size: 1rem;
+    font-size: 1.02rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--acc-slate);
 }
 
 .account-subs-dates {
     margin-top: 4px;
-    font-size: 0.85rem;
-    color: #6b7280;
+    font-size: 0.84rem;
+    color: var(--acc-muted);
 }
 
 .account-subs-status {
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .account-subs-body {
-    padding-top: 12px;
+    padding-top: 14px;
     font-size: 0.9rem;
 }
 
@@ -435,16 +544,16 @@
 }
 
 .account-subs-row .label {
-    color: #6b7280;
+    color: var(--acc-muted);
 }
 
 .account-subs-row .value {
     font-weight: 600;
-    color: #111827;
+    color: var(--acc-slate);
 }
 
 .account-subs-actions {
-    margin-top: 12px;
+    margin-top: 14px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -455,14 +564,15 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    border: 1px solid #fee2e2;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid #fecaca;
     background: #fef2f2;
-    color: #b91c1c;
+    color: #dc2626;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
     transition: background-color 0.18s ease, transform 0.18s ease;
 }
 
@@ -472,7 +582,7 @@
 }
 
 .account-subs-cancel-btn:disabled {
-    opacity: 0.7;
+    opacity: 0.65;
     cursor: not-allowed;
 }
 
@@ -483,26 +593,27 @@
     padding: 0;
     border: none;
     background: none;
-    color: #f97316;
-    font-size: 0.9rem;
+    color: var(--acc-orange);
+    font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
     transition: color 0.18s ease;
 }
 
 .account-subs-link:hover {
-    color: #ea580c;
+    color: var(--acc-orange-dark);
 }
 
-/* Status badges (shared with Subscriptions) */
+/* Status badges (subscription API values) */
 .status-badge,
 .status-pending,
 .status-active,
 .status-completed,
 .status-cancelled {
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
 }
 
@@ -522,8 +633,8 @@
 }
 
 .status-cancelled {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: #f1f5f9;
+    color: var(--acc-muted);
 }
 
 /* Spinner */
@@ -531,8 +642,8 @@
     width: 40px;
     height: 40px;
     border-radius: 999px;
-    border: 3px solid rgba(15, 23, 42, 0.12);
-    border-top-color: #f97316;
+    border: 3px solid rgba(15, 23, 42, 0.1);
+    border-top-color: var(--acc-orange);
     animation: bb-spin 0.7s linear infinite;
 }
 
@@ -549,66 +660,61 @@
     }
 
     .account-sidebar {
-        width: 240px;
-        min-width: 240px;
+        width: 260px;
+        min-width: 260px;
     }
 
-    .account-main {
-        padding: 24px 28px 40px;
+    .account-body {
+        padding: 20px 20px 40px;
     }
 }
 
-@media (max-width: 768px) {
-    .account-page {
+@media (max-width: 900px) {
+    .account-layout {
         flex-direction: column;
+        gap: 20px;
     }
 
     .account-sidebar {
         width: 100%;
         min-width: unset;
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 16px;
-        border-right: none;
-        border-bottom: 1px solid #e5e7eb;
-        gap: 12px;
-    }
-
-    .account-profile-card {
-        width: 100%;
-        padding: 0 0 12px;
-        margin-bottom: 12px;
-        border-bottom: 1px solid #f3f4f6;
+        position: static;
+        max-height: none;
     }
 
     .account-nav {
-        flex: none;
+        max-height: none;
         flex-direction: row;
         flex-wrap: wrap;
         gap: 8px;
-        padding: 0;
+        padding: 0 12px;
     }
 
     .account-nav-item {
         padding: 8px 12px;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }
 
     .account-nav-item span {
         display: none;
     }
 
+    .account-profile-card {
+        padding: 0 16px 14px;
+    }
+
     .account-logout-btn {
-        margin: 0 0 0 auto;
+        margin: 8px 12px 0 auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .account-hero {
+        padding: 32px 18px 36px;
     }
 
-    .account-main {
-        padding: 20px 16px 32px;
-    }
-
-    .account-greeting {
-        font-size: 1.4rem;
-        margin-bottom: 20px;
+    .account-body {
+        padding: 16px 16px 36px;
     }
 
     .account-order-card {
@@ -617,7 +723,7 @@
 
     .account-order-status {
         order: 4;
-        margin-left: 60px;
+        margin-left: 62px;
     }
 
     .account-order-price {

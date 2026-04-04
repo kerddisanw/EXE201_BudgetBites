@@ -106,4 +106,10 @@ export const feedbackService = {
     createFeedback: (data) => api.post('/feedbacks', data)
 };
 
+/** AI Meal Assistant — POST body: { message: string } */
+export const chatbotService = {
+    sendMessage: (message) =>
+        api.post('/chatbot', { message }, { timeout: 60000 })
+};
+
 export default api;
