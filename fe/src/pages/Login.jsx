@@ -44,6 +44,21 @@ function Login({ initialMode = 'login' }) {
                     email: formData.email,
                     password: formData.password
                 });
+                if (response.data.role === 'ADMIN') {
+                    const adminBase = (
+                        import.meta.env.VITE_ADMIN_APP_URL || 'http://localhost:5174'
+                    ).replace(/\/$/, '');
+                    const u = response.data;
+                    const params = new URLSearchParams({
+                        token: u.token,
+                        email: u.email || '',
+                        fullName: u.fullName || '',
+                        role: u.role || 'ADMIN',
+                        id: String(u.id ?? '')
+                    });
+                    window.location.href = `${adminBase}/import-session?${params.toString()}`;
+                    return;
+                }
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data));
                 navigate('/mainpage');
