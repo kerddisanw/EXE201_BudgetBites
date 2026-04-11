@@ -1,6 +1,8 @@
 package com.studentmeal.controller;
 
+import com.studentmeal.dto.FeedbackDTO;
 import com.studentmeal.service.AdminService;
+import com.studentmeal.service.FeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,11 +27,18 @@ import java.util.Map;
 public class AdminDashboardController {
 
     private final AdminService adminService;
+    private final FeedbackService feedbackService;
 
     @GetMapping("/stats")
     @Operation(summary = "Get high-level dashboard statistics")
     public ResponseEntity<Map<String, Object>> getStats() {
         return ResponseEntity.ok(adminService.getDashboardStats());
+    }
+
+    @GetMapping("/partners/{partnerId}/feedbacks")
+    @Operation(summary = "List customer ratings/comments for a partner (newest first)")
+    public ResponseEntity<List<FeedbackDTO>> getPartnerFeedbacks(@PathVariable Long partnerId) {
+        return ResponseEntity.ok(feedbackService.getFeedbacksByPartner(partnerId));
     }
 
     @GetMapping("/customers")

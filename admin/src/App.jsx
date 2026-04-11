@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminCustomers from './pages/AdminCustomers';
 import AdminPartners from './pages/AdminPartners';
 import AdminPartnerMeals from './pages/AdminPartnerMeals';
+import AdminPartnerRatings from './pages/AdminPartnerRatings';
 import AdminPackages from './pages/AdminPackages';
 import AdminSubscriptions from './pages/AdminSubscriptions';
 
@@ -28,6 +29,7 @@ function App() {
                     <Route index element={<AdminDashboard />} />
                     <Route path="customers" element={<AdminCustomers />} />
                     <Route path="partners" element={<AdminPartners />} />
+                    <Route path="partners/:partnerId/ratings" element={<AdminPartnerRatings />} />
                     <Route path="partners/:partnerId/meals" element={<AdminPartnerMeals />} />
                     <Route path="meal-packages" element={<AdminPackages />} />
                     <Route path="subscriptions" element={<AdminSubscriptions />} />

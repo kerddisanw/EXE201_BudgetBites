@@ -17,6 +17,11 @@ const ADMIN_TITLES = [
         sub: 'Danh sách và trạng thái tài khoản'
     },
     {
+        match: (p) => /^\/partners\/\d+\/ratings/.test(p),
+        title: 'Đánh giá đối tác',
+        sub: 'Nhận xét và sao từ khách hàng'
+    },
+    {
         match: (p) => /^\/partners\/\d+\/meals/.test(p),
         title: 'Thực đơn tuần',
         sub: 'Món ăn theo ngày cho đối tác'

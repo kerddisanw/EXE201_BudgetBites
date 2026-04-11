@@ -33,7 +33,7 @@ public class FeedbackService {
 
     @Transactional(readOnly = true)
     public List<FeedbackDTO> getFeedbacksByPartner(Long partnerId) {
-        return feedbackRepository.findByPartnerId(partnerId).stream()
+        return feedbackRepository.findByPartner_IdOrderByCreatedAtDesc(partnerId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

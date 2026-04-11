@@ -246,12 +246,20 @@ const AdminPartners = () => {
                                                 <strong>{p.name}</strong>
                                             </Link>
                                             {p.address ? <div className="admin-partner-address">{p.address}</div> : null}
-                                            <Link
-                                                className="admin-partner-weekly-link"
-                                                to={`/partners/${p.id}/meals`}
-                                            >
-                                                Thực đơn tuần →
-                                            </Link>
+                                            <div className="admin-partner-links-row">
+                                                <Link
+                                                    className="admin-partner-weekly-link"
+                                                    to={`/partners/${p.id}/meals`}
+                                                >
+                                                    Thực đơn tuần →
+                                                </Link>
+                                                <Link
+                                                    className="admin-partner-ratings-link"
+                                                    to={`/partners/${p.id}/ratings`}
+                                                >
+                                                    Đánh giá khách →
+                                                </Link>
+                                            </div>
                                         </td>
                                         <td>
                                             {p.phoneNumber || '—'}

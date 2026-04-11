@@ -3,7 +3,8 @@ import api from './api';
 export const adminDashboardService = {
     getStats: () => api.get('/admin/dashboard/stats'),
     getCustomers: () => api.get('/admin/dashboard/customers'),
-    toggleCustomerActive: (id) => api.patch(`/admin/dashboard/customers/${id}/active`)
+    toggleCustomerActive: (id) => api.patch(`/admin/dashboard/customers/${id}/active`),
+    getPartnerFeedbacks: (partnerId) => api.get(`/admin/dashboard/partners/${partnerId}/feedbacks`)
 };
 
 export const adminPartnerService = {

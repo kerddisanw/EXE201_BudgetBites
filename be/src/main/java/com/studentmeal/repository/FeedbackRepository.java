@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
-    List<Feedback> findByPartnerId(Long partnerId);
+    List<Feedback> findByPartner_IdOrderByCreatedAtDesc(Long partnerId);
 
     List<Feedback> findByCustomerId(Long customerId);
 }
