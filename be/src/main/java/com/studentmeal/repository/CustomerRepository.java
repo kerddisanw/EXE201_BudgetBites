@@ -13,4 +13,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Boolean existsByEmail(String email);
 
     Boolean existsByStudentId(String studentId);
+
+    long countByActiveTrue();
+
+    long countByActiveFalse();
 }

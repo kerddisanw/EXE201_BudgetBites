@@ -11,4 +11,10 @@ public interface MealPartnerRepository extends JpaRepository<MealPartner, Long> 
     List<MealPartner> findByActiveTrue();
 
     List<MealPartner> findByActiveTrueAndStatusTrue();
+
+    long countByActiveTrue();
+
+    long countByActiveFalse();
+
+    long countByActiveTrueAndStatusTrue();
 }
