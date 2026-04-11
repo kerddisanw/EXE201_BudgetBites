@@ -89,3 +89,28 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 .logout-btn:hover {
   background-color: #5568d3;
 }
+
+/* Shared loading (Cart, Partners, Packages, etc.) — spinner lived only in Profile.css before,
+   so pages that don’t import it had no styles; text-align:center also fails to center block spinners. */
+.bb-page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.bb-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 3px solid rgba(15, 23, 42, 0.1);
+  border-top-color: #f97316;
+  animation: bb-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes bb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

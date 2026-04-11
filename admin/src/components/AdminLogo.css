@@ -1,0 +1,30 @@
+.admin-logo {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
+}
+
+.admin-logo-primary {
+    color: #f97316;
+}
+
+.admin-logo-accent {
+    color: #1e293b;
+}
+
+.admin-logo-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #fff7ed;
+    color: #ea580c;
+    padding: 4px 8px;
+    border-radius: 999px;
+    width: fit-content;
+}

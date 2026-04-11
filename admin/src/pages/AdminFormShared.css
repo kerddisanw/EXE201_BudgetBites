@@ -1,0 +1,100 @@
+.admin-form-block {
+    margin-bottom: 28px;
+}
+
+.admin-form-block h3 {
+    margin: 0 0 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--bb-slate, #0f172a);
+}
+
+.admin-form-block > p {
+    margin: 0 0 14px;
+    font-size: 0.88rem;
+    color: var(--bb-muted, #64748b);
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px 16px;
+}
+
+.admin-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-form-field-full {
+    grid-column: 1 / -1;
+}
+
+.admin-form-field label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--bb-muted, #64748b);
+}
+
+.admin-form-field input,
+.admin-form-field select,
+.admin-form-field textarea {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--bb-border, #e2e8f0);
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--bb-text, #1e293b);
+    background: #fff;
+}
+
+.admin-form-field textarea {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.admin-form-field input:focus,
+.admin-form-field select:focus,
+.admin-form-field textarea:focus {
+    outline: none;
+    border-color: rgba(249, 115, 22, 0.55);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.admin-form-actions {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.admin-btn-primary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    background: var(--bb-orange, #f97316);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.12s ease;
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+    background: var(--bb-orange-dark, #ea580c);
+}
+
+.admin-btn-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.admin-form-success {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #15803d;
+}

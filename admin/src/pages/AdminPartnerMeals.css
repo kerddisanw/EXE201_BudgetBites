@@ -1,0 +1,385 @@
+/* —— Page shell —— */
+.admin-partner-meals-page {
+    max-width: 1120px;
+}
+
+.admin-partner-meals-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* —— Hero / header —— */
+.admin-partner-meals-hero {
+    position: relative;
+    margin: -4px 0 28px;
+    padding: 24px 26px 26px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 42%, #ffffff 100%);
+    border: 1px solid rgba(249, 115, 22, 0.18);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 12px 40px -12px rgba(249, 115, 22, 0.12);
+    overflow: hidden;
+}
+
+.admin-partner-meals-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(45%, 280px);
+    height: 100%;
+    background: radial-gradient(ellipse at 100% 0%, rgba(249, 115, 22, 0.14) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.admin-partner-meals-hero-main {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-partner-meals-kicker {
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bb-orange, #f97316);
+}
+
+.admin-partner-meals-title {
+    margin: 0 0 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--bb-slate, #0f172a);
+    letter-spacing: -0.02em;
+}
+
+.admin-partner-meals-title-accent {
+    color: var(--bb-orange-dark, #ea580c);
+}
+
+.admin-partner-meals-title-sep {
+    margin: 0 0.35em;
+    font-weight: 600;
+    color: var(--bb-muted, #94a3b8);
+    opacity: 0.85;
+}
+
+.admin-partner-meals-title-name {
+    color: var(--bb-slate, #0f172a);
+}
+
+.admin-partner-meals-lead {
+    margin: 0;
+    max-width: 52em;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--bb-muted, #64748b);
+}
+
+.admin-partner-meals-back {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--bb-muted, #64748b);
+    text-decoration: none;
+    padding: 6px 8px;
+    margin-left: -8px;
+    border-radius: 10px;
+    transition:
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+.admin-partner-meals-back:hover {
+    color: var(--bb-orange, #f97316);
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.admin-partner-meals-back-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+/* —— Alerts —— */
+.admin-partner-meals-alert {
+    margin-bottom: 0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+.admin-partner-meals-alert.admin-error {
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    background: #fef2f2;
+}
+
+.admin-partner-meals-alert--ok {
+    border: 1px solid rgba(22, 163, 74, 0.22);
+    background: #f0fdf4;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+/* —— Settings card —— */
+.admin-partner-meals-card {
+    padding: 22px 24px 24px;
+}
+
+.admin-partner-meals-card--table {
+    padding: 0;
+}
+
+.admin-partner-meals-card--table .admin-meals-table-wrap {
+    margin: 0;
+}
+
+.admin-partner-meals-card-head {
+    margin-bottom: 18px;
+}
+
+.admin-partner-meals-card-head--row {
+    padding: 20px 22px 0;
+    margin-bottom: 0;
+}
+
+.admin-partner-meals-card--table .admin-meals-table-wrap {
+    border-top: 1px solid var(--bb-border, #e2e8f0);
+}
+
+.admin-partner-meals-card-title {
+    margin: 0 0 6px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--bb-slate, #0f172a);
+}
+
+.admin-partner-meals-card-hint {
+    margin: 0;
+    font-size: 0.86rem;
+    color: var(--bb-muted, #64748b);
+    line-height: 1.45;
+}
+
+.admin-partner-meals-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 18px;
+    align-items: flex-end;
+}
+
+.admin-partner-meals-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-partner-meals-field-grow {
+    flex: 1 1 240px;
+    min-width: 200px;
+}
+
+.admin-partner-meals-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bb-muted, #64748b);
+}
+
+.admin-partner-meals-toolbar select,
+.admin-partner-meals-toolbar input[type='text'],
+.admin-partner-meals-toolbar input[type='date'] {
+    min-width: 200px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--bb-border, #e2e8f0);
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--bb-text, #1e293b);
+    background: #fff;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.admin-partner-meals-toolbar select:focus,
+.admin-partner-meals-toolbar input:focus {
+    outline: none;
+    border-color: rgba(249, 115, 22, 0.55);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.14);
+}
+
+/* —— Table —— */
+.admin-meals-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-meals-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.admin-meals-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid var(--bb-border, #e2e8f0);
+}
+
+.admin-meals-table th,
+.admin-meals-table td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--bb-border, #e2e8f0);
+    vertical-align: top;
+}
+
+.admin-meals-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.admin-meals-table tbody tr:hover {
+    background: rgba(255, 247, 237, 0.55);
+}
+
+.admin-meals-table tbody tr:nth-child(even) {
+    background: rgba(248, 250, 252, 0.65);
+}
+
+.admin-meals-table tbody tr:nth-child(even):hover {
+    background: rgba(255, 247, 237, 0.75);
+}
+
+.admin-meals-table th {
+    font-weight: 700;
+    color: var(--bb-muted, #64748b);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.admin-meals-table th:last-child,
+.admin-meals-table td:last-child {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.admin-meals-table input,
+.admin-meals-table select {
+    width: 100%;
+    max-width: 160px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--bb-border, #e2e8f0);
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: #fff;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.admin-meals-table input:focus,
+.admin-meals-table select:focus {
+    outline: none;
+    border-color: rgba(249, 115, 22, 0.5);
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.12);
+}
+
+.admin-meals-table .admin-meals-col-name input {
+    max-width: 240px;
+}
+
+.admin-meals-table .admin-meals-col-img .admin-form-field {
+    margin: 0;
+}
+
+.admin-meals-table .admin-meals-col-img .admin-image-field-row {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.admin-meals-table .admin-meals-col-img .admin-image-field-preview img {
+    max-width: 64px;
+    max-height: 64px;
+    border-radius: 8px;
+    border: 1px solid var(--bb-border, #e2e8f0);
+}
+
+.admin-meals-table .admin-meals-col-img .admin-image-field-hint--muted {
+    display: none;
+}
+
+/* —— Footer actions —— */
+.admin-partner-meals-actions {
+    margin-top: 4px;
+    padding: 4px 0 8px;
+    gap: 12px;
+}
+
+.admin-partner-meals-btn-secondary {
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 700;
+    border: 1px dashed rgba(249, 115, 22, 0.45);
+    background: #fffefb;
+    color: var(--bb-orange-dark, #c2410c);
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.12s ease;
+}
+
+.admin-partner-meals-btn-secondary:hover {
+    background: var(--bb-orange-soft, #fff7ed);
+    border-style: solid;
+    border-color: rgba(249, 115, 22, 0.55);
+}
+
+.admin-partner-meals-btn-save {
+    min-width: 160px;
+    padding: 12px 22px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.28);
+}
+
+.admin-partner-meals-btn-save:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+    .admin-partner-meals-hero {
+        padding: 20px 18px 22px;
+    }
+
+    .admin-partner-meals-toolbar select,
+    .admin-partner-meals-toolbar input[type='text'],
+    .admin-partner-meals-toolbar input[type='date'] {
+        min-width: 100%;
+    }
+}

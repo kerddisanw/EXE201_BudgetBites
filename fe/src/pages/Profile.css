@@ -637,21 +637,7 @@
     color: var(--acc-muted);
 }
 
-/* Spinner */
-.bb-spinner {
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    border: 3px solid rgba(15, 23, 42, 0.1);
-    border-top-color: var(--acc-orange);
-    animation: bb-spin 0.7s linear infinite;
-}
-
-@keyframes bb-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+/* Spinner: defined globally in index.css (.bb-spinner / @keyframes bb-spin) */
 
 /* Responsive */
 @media (max-width: 1024px) {
