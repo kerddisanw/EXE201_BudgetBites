@@ -41,8 +41,9 @@ const resolveApiUrl = () => {
     return DEFAULT_RENDER_API;
 };
 
-const API_URL = resolveApiUrl();
+//const API_URL = resolveApiUrl();
 
+const API_URL = 'https://exe201-budgetbites.onrender.com/api';
 export default {
     API_URL,
     GOOGLE_CLIENT_ID
