@@ -1,5 +1,6 @@
 package com.studentmeal.service;
 
+import com.studentmeal.BudgetBitesConstants;
 import com.studentmeal.entity.Payment;
 import com.studentmeal.entity.Subscription;
 import com.studentmeal.repository.*;
@@ -20,10 +21,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminService {
 
+    private static final String CART_SUB_NOTE = BudgetBitesConstants.SUBSCRIPTION_NOTES_CART_CHECKOUT_NO_PACKAGE;
+
     private final CustomerRepository customerRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final MealPartnerRepository mealPartnerRepository;
     private final PaymentRepository paymentRepository;
+    private final MealOrderRepository mealOrderRepository;
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new LinkedHashMap<>();
@@ -38,12 +42,16 @@ public class AdminService {
         stats.put("inactivePartners", mealPartnerRepository.countByActiveFalse());
         stats.put("approvedActivePartners", mealPartnerRepository.countByActiveTrueAndStatusTrue());
 
-        long totalSubs = subscriptionRepository.count();
-        stats.put("totalSubscriptions", totalSubs);
+        // Hợp đồng gói combo thật (không tính bản ghi subscription chỉ để PayOS + giỏ món lẻ).
+        long packageSubscriptions = subscriptionRepository.countExcludingCartCheckout(CART_SUB_NOTE);
+        stats.put("totalSubscriptions", packageSubscriptions);
+        stats.put("cartCheckoutSubscriptions", subscriptionRepository.countByNotes(CART_SUB_NOTE));
+
+        stats.put("totalMealOrders", mealOrderRepository.count());
 
         Map<String, Long> subsByStatus = new LinkedHashMap<>();
         for (Subscription.SubscriptionStatus s : Subscription.SubscriptionStatus.values()) {
-            subsByStatus.put(s.name(), subscriptionRepository.countByStatus(s));
+            subsByStatus.put(s.name(), subscriptionRepository.countByStatusExcludingCartCheckout(s, CART_SUB_NOTE));
         }
         stats.put("subscriptionsByStatus", subsByStatus);
 
@@ -72,6 +80,7 @@ public class AdminService {
 
         stats.put("revenueByMonth", buildRevenueByMonth(completedPayments));
         stats.put("subscriptionsByMonth", buildSubscriptionsByMonth());
+        stats.put("mealOrdersByMonth", buildMealOrdersByMonth());
 
         return stats;
     }
@@ -103,6 +112,10 @@ public class AdminService {
         return series;
     }
 
+    private boolean isPackageSubscription(Subscription s) {
+        return s.getNotes() == null || !CART_SUB_NOTE.equals(s.getNotes());
+    }
+
     private List<Map<String, Object>> buildSubscriptionsByMonth() {
         YearMonth now = YearMonth.now();
         List<YearMonth> months = new ArrayList<>();
@@ -111,7 +124,29 @@ public class AdminService {
         }
 
         Map<YearMonth, Long> counts = subscriptionRepository.findAll().stream()
+                .filter(this::isPackageSubscription)
                 .collect(Collectors.groupingBy(s -> YearMonth.from(s.getCreatedAt()), Collectors.counting()));
+
+        List<Map<String, Object>> series = new ArrayList<>();
+        for (YearMonth ym : months) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("month", ym.toString());
+            row.put("label", monthLabel(ym));
+            row.put("count", counts.getOrDefault(ym, 0L));
+            series.add(row);
+        }
+        return series;
+    }
+
+    private List<Map<String, Object>> buildMealOrdersByMonth() {
+        YearMonth now = YearMonth.now();
+        List<YearMonth> months = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            months.add(now.minusMonths(i));
+        }
+
+        Map<YearMonth, Long> counts = mealOrderRepository.findAll().stream()
+                .collect(Collectors.groupingBy(mo -> YearMonth.from(mo.getOrderDate()), Collectors.counting()));
 
         List<Map<String, Object>> series = new ArrayList<>();
         for (YearMonth ym : months) {
