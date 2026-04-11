@@ -27,4 +27,9 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             @Param("status") Subscription.SubscriptionStatus status, @Param("cartNote") String cartNote);
 
     long countByNotes(String notes);
+
+    /** Đăng ký gói combo thật — không tính bản ghi chỉ để thanh toán giỏ món lẻ (PayOS). */
+    @Query(
+            "SELECT s FROM Subscription s WHERE s.notes IS NULL OR s.notes <> :cartNote ORDER BY s.createdAt DESC")
+    List<Subscription> findAllExcludingCartCheckout(@Param("cartNote") String cartNote);
 }

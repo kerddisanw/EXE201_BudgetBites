@@ -1,5 +1,6 @@
 package com.studentmeal.service;
 
+import com.studentmeal.BudgetBitesConstants;
 import com.studentmeal.dto.SubscriptionDTO;
 import com.studentmeal.dto.SubscriptionRequest;
 import com.studentmeal.entity.Customer;
@@ -92,7 +93,9 @@ public class SubscriptionService {
 
         @Transactional(readOnly = true)
         public List<SubscriptionDTO> getAllSubscriptions() {
-                return subscriptionRepository.findAll().stream()
+                return subscriptionRepository
+                                .findAllExcludingCartCheckout(BudgetBitesConstants.SUBSCRIPTION_NOTES_CART_CHECKOUT_NO_PACKAGE)
+                                .stream()
                                 .map(this::convertToDTO)
                                 .collect(Collectors.toList());
         }
