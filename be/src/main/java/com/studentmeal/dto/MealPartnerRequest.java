@@ -20,4 +20,8 @@ public class MealPartnerRequest {
     private BigDecimal discountRate;
 
     private String imageUrl;
+
+    private Double latitude;
+
+    private Double longitude;
 }

@@ -50,6 +50,8 @@ public class MealPartnerService {
         partner.setEmail(request.getEmail());
         partner.setImageUrl(request.getImageUrl());
         partner.setDiscountRate(request.getDiscountRate());
+        partner.setLatitude(request.getLatitude());
+        partner.setLongitude(request.getLongitude());
 
         // active và status mặc định false từ entity
         return toResponse(mealPartnerRepository.save(partner));
@@ -66,6 +68,8 @@ public class MealPartnerService {
         partner.setEmail(request.getEmail());
         partner.setImageUrl(request.getImageUrl());
         partner.setDiscountRate(request.getDiscountRate());
+        partner.setLatitude(request.getLatitude());
+        partner.setLongitude(request.getLongitude());
 
         return toResponse(mealPartnerRepository.save(partner));
     }
