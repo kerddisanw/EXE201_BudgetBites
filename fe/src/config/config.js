@@ -1,29 +1,49 @@
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
-// Pick backend API URL.
-// 1) Prefer build-time `VITE_API_URL` if provided (most reliable).
-// 2) Otherwise, infer from hostname so it works across environments.
+/** Spring Boot API on Render (different service from static FE `…-1…`). */
+const DEFAULT_RENDER_API = 'https://exe201-budgetbites.onrender.com/api';
+
+function isStaticCustomerHost(hostname) {
+    return (hostname || '').toLowerCase().includes('exe201-budgetbites-1');
+}
+
+/**
+ * When the customer app is served from the static Render URL, relative `/api` or
+ * same-host `https://…-1…/api` hits the static site (no Spring) → 403. Force the real API host.
+ */
 const resolveApiUrl = () => {
-    const host = window.location.hostname;
+    const pageHost = typeof window !== 'undefined' ? window.location.hostname : '';
+    const pageHostLower = (pageHost || '').toLowerCase();
 
-    // Local dev (frontend -> BE)
-    if (host === 'localhost' || host === '127.0.0.1') return 'https://exe201-budgetbites.onrender.com/api';
+    const fromEnv = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
 
-    // Deployed FE domain
-    if (host.includes('exe201-budgetbites-1')) return 'https://exe201-budgetbites.onrender.com/api';
+    if (pageHostLower === 'localhost' || pageHostLower === '127.0.0.1') {
+        const local = (import.meta.env.VITE_DEV_API_URL || '').trim().replace(/\/$/, '');
+        return local || DEFAULT_RENDER_API;
+    }
 
-    // Fallback to previous deployed backend
-    return 'https://exe201-budgetbites.onrender.com/api';
+    if (isStaticCustomerHost(pageHost)) {
+        if (
+            fromEnv &&
+            fromEnv.includes('exe201-budgetbites.onrender.com') &&
+            !fromEnv.toLowerCase().includes('budgetbites-1')
+        ) {
+            return fromEnv.startsWith('http') ? fromEnv : `https://${fromEnv}`;
+        }
+        return DEFAULT_RENDER_API;
+    }
+
+    if (fromEnv) {
+        if (fromEnv.startsWith('http://') || fromEnv.startsWith('https://')) return fromEnv;
+        return `https://${fromEnv}`;
+    }
+
+    return DEFAULT_RENDER_API;
 };
 
-
-
- const API_URL = resolveApiUrl();
-
-  // const API_URL = 'http://localhost:8080/api';
+const API_URL = resolveApiUrl();
 
 export default {
     API_URL,
     GOOGLE_CLIENT_ID
 };
-
