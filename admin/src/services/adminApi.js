@@ -23,7 +23,8 @@ export const adminMenuService = {
 
 export const adminPackageService = {
     getAllPackages: () => api.get('/admin/packages'),
-    createPackage: (body) => api.post('/packages', body)
+    createPackage: (body) => api.post('/packages', body),
+    updatePackage: (id, body) => api.put(`/packages/${id}`, body)
 };
 
 export const adminSubscriptionService = {

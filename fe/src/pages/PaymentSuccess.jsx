@@ -1,12 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { cartService } from '../services/api';
+import {
+    CheckCircle2,
+    ClipboardList,
+    Package,
+    ShoppingBag,
+    Sparkles
+} from 'lucide-react';
+import { cartService, subscriptionService, packageService } from '../services/api';
+import { readCheckoutMeta, clearCheckoutMeta } from '../utils/checkoutMeta';
+import './PaymentResult.css';
+
+function formatMoney(n) {
+    const v = typeof n === 'string' ? Number(n) : n;
+    if (v == null || !Number.isFinite(Number(v))) return null;
+    return `${Number(v).toLocaleString('vi-VN')}₫`;
+}
+
+function previewLabel(meta, hasLiveSub) {
+    if (meta?.flow === 'cart') return 'Thanh toán giỏ hàng';
+    if (meta?.flow === 'cart_subscription' || hasLiveSub) return 'Gói & thanh toán';
+    if (meta?.flow === 'package') return 'Gói bạn vừa chọn';
+    return 'Hoàn tất thanh toán';
+}
 
 function PaymentSuccess() {
     const [creatingOrders, setCreatingOrders] = useState(false);
     const [ordersCreated, setOrdersCreated] = useState(false);
     const [ordersCount, setOrdersCount] = useState(0);
     const [checkoutError, setCheckoutError] = useState(false);
+    const [liveSub, setLiveSub] = useState(null);
+    const [extraImageUrl, setExtraImageUrl] = useState(null);
+
+    const meta = useMemo(() => readCheckoutMeta(), []);
+
+    useEffect(() => {
+        return () => clearCheckoutMeta();
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const subId =
+                localStorage.getItem('bb_checkout_subscription_id') ||
+                (meta?.subscriptionId != null ? String(meta.subscriptionId) : null);
+            if (!subId) return;
+            try {
+                const res = await subscriptionService.getSubscriptionById(Number(subId));
+                if (!cancelled) setLiveSub(res.data);
+            } catch {
+                /* optional enrichment */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [meta?.subscriptionId]);
+
+    useEffect(() => {
+        let cancelled = false;
+        const pid = liveSub?.packageId ?? meta?.packageId;
+        if (!pid || meta?.imageUrl) return;
+        (async () => {
+            try {
+                const res = await packageService.getPackageById(pid);
+                if (!cancelled && res.data?.imageUrl) setExtraImageUrl(res.data.imageUrl);
+            } catch {
+                /* ignore */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [liveSub?.packageId, meta?.packageId, meta?.imageUrl]);
 
     useEffect(() => {
         const subscriptionId = localStorage.getItem('bb_checkout_subscription_id');
@@ -18,7 +84,7 @@ function PaymentSuccess() {
         const attemptCheckout = async () => {
             attempts += 1;
             setCreatingOrders(true);
-            setCheckoutError('');
+            setCheckoutError(false);
 
             try {
                 const res = await cartService.checkout(Number(subscriptionId));
@@ -28,11 +94,12 @@ function PaymentSuccess() {
                 setOrdersCount(Array.isArray(data) ? data.length : 0);
                 setOrdersCreated(true);
                 localStorage.removeItem('bb_checkout_subscription_id');
-            } catch (err) {
+            } catch {
                 if (attempts >= 3) {
-                    if (cancelled) return;
-                    setCheckoutError(true);
-                    localStorage.removeItem('bb_checkout_subscription_id');
+                    if (!cancelled) {
+                        setCheckoutError(true);
+                        localStorage.removeItem('bb_checkout_subscription_id');
+                    }
                     return;
                 }
 
@@ -51,114 +118,158 @@ function PaymentSuccess() {
         };
     }, []);
 
+    const previewImage = meta?.imageUrl || extraImageUrl || null;
+    const previewName =
+        liveSub?.packageName ||
+        meta?.packageName ||
+        (meta?.flow === 'cart' ? 'Giỏ hàng của bạn' : null) ||
+        'Đăng ký gói BudgetBites';
+
+    const previewPrice =
+        liveSub?.totalAmount != null
+            ? liveSub.totalAmount
+            : meta?.price != null
+              ? meta.price
+              : meta?.flow === 'cart'
+                ? meta.cartTotal
+                : null;
+
+    const priceStr = formatMoney(previewPrice);
+    const cartHint =
+        meta?.flow === 'cart' && meta.itemCount != null
+            ? `${meta.itemCount} món · ${priceStr || formatMoney(meta.cartTotal) || '—'}`
+            : null;
+
+    const PreviewVisualIcon =
+        meta?.flow === 'cart' && !previewImage ? ShoppingBag : Package;
+
     return (
-        <div className="partners-page">
-            <div className="partners-header">
-                <h1>Thanh toán thành công</h1>
-                <p>Cảm ơn bạn đã thanh toán cùng Budget Bites.</p>
-            </div>
-
-            <div
-                style={{
-                    maxWidth: 640,
-                    margin: '24px auto 0',
-                    padding: 24,
-                    borderRadius: 16,
-                    background: '#ecfdf3',
-                    border: '1px solid #bbf7d0',
-                    boxShadow: '0 10px 26px rgba(0,0,0,0.03)',
-                }}
-            >
-                <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                    <span
-                        style={{
-                            display: 'inline-flex',
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#dcfce7',
-                            color: '#16a34a',
-                            fontWeight: 800,
-                            fontSize: 18,
-                            lineHeight: 1,
-                        }}
-                    >
-                        ✓
+        <div className="payment-result-page payment-result-page--success">
+            <header className="payment-result-hero">
+                <div className="payment-result-hero-inner">
+                    <span className="payment-result-kicker">
+                        <Sparkles size={15} />
+                        PayOS · Thanh toán online
                     </span>
-
-                    <div>
-                        <h2 style={{ margin: 0, fontSize: 18, color: '#166534' }}>
-                            Thanh toán đã được xác nhận
-                        </h2>
-                        <p style={{ margin: '10px 0 0', color: '#14532d', lineHeight: 1.6 }}>
-                            Cảm ơn bạn đã hoàn tất thanh toán. Hệ thống sẽ tự động ghi nhận các bữa ăn từ
-                            giỏ hàng của bạn.
-                        </p>
-
-                        {creatingOrders && (
-                            <p style={{ margin: '10px 0 0', color: '#166534' }}>
-                                Đang tạo các món bữa ăn từ giỏ hàng...
-                            </p>
-                        )}
-
-                        {ordersCreated && (
-                            <p style={{ margin: '10px 0 0', color: '#166534', fontWeight: 600 }}>
-                                Đã tạo {ordersCount} món bữa ăn thành công. Bạn có thể xem chi tiết trong
-                                phần <Link to="/subscriptions">Gói đăng ký</Link> hoặc tiếp tục đặt bữa.
-                            </p>
-                        )}
-
-                        {checkoutError && (
-                            <p style={{ margin: '10px 0 0', color: '#b91c1c', fontWeight: 600 }}>
-                                Thanh toán đã thành công nhưng hệ thống chưa thể tạo tự động các món bữa
-                                ăn. Bạn vẫn có thể kiểm tra thanh toán trong mục tài khoản và đặt bữa lại
-                                nếu cần.
-                            </p>
-                        )}
-                    </div>
+                    <h1>Thanh toán thành công</h1>
+                    <p>
+                        Cảm ơn bạn đã đồng hành cùng BudgetBites. Giao dịch đã được ghi nhận; bạn có thể
+                        tiếp tục đặt bữa hoặc xem chi tiết gói trong tài khoản.
+                    </p>
                 </div>
+            </header>
 
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        gap: 12,
-                        marginTop: 22,
-                        flexWrap: 'wrap',
-                    }}
-                >
-                    <Link
-                        to="/mainpage"
-                        style={{
-                            padding: '10px 16px',
-                            borderRadius: 999,
-                            border: '1px solid #d1fae5',
-                            textDecoration: 'none',
-                            color: '#064e3b',
-                            fontSize: 14,
-                            fontWeight: 600,
-                        }}
-                    >
-                        Về trang chủ
-                    </Link>
+            <div className="payment-result-shell">
+                <div className="payment-result-layout">
+                    <aside className="payment-result-preview">
+                        <div className="payment-result-preview-visual">
+                            {previewImage ? (
+                                <img src={previewImage} alt="" />
+                            ) : (
+                                <PreviewVisualIcon size={44} strokeWidth={1.2} aria-hidden />
+                            )}
+                        </div>
+                        <div className="payment-result-preview-body">
+                            <div className="payment-result-preview-label">
+                                {previewLabel(meta, Boolean(liveSub))}
+                            </div>
+                            <h2 className="payment-result-preview-title">{previewName}</h2>
+                            {cartHint ? (
+                                <p className="payment-result-preview-meta">{cartHint}</p>
+                            ) : liveSub?.status ? (
+                                <p className="payment-result-preview-meta">
+                                    Trạng thái: <strong>{liveSub.status}</strong>
+                                </p>
+                            ) : (
+                                <p className="payment-result-preview-meta">
+                                    Gói đã được kích hoạt sau khi thanh toán thành công.
+                                </p>
+                            )}
+                            {priceStr ? <div className="payment-result-preview-price">{priceStr}</div> : null}
+                        </div>
+                    </aside>
 
-                    <Link
-                        to="/subscriptions"
-                        style={{
-                            padding: '10px 18px',
-                            borderRadius: 999,
-                            textDecoration: 'none',
-                            background: '#16a34a',
-                            color: '#fff',
-                            fontSize: 14,
-                            fontWeight: 700,
-                            boxShadow: '0 6px 14px rgba(22, 163, 74, 0.35)',
-                        }}
-                    >
-                        Xem gói / lịch ăn
-                    </Link>
+                    <div className="payment-result-main">
+                        <div className="payment-result-card">
+                            <div className="payment-result-card-head">
+                                <div className="payment-result-icon-wrap" aria-hidden>
+                                    <CheckCircle2 size={26} strokeWidth={2.2} />
+                                </div>
+                                <div>
+                                    <h2>Thanh toán đã được xác nhận</h2>
+                                    <p className="payment-result-lead">
+                                        Hệ thống đã nhận thanh toán từ PayOS. Nếu bạn vừa thanh toán kèm
+                                        giỏ hàng, chúng tôi sẽ tạo các suất ăn tương ứng.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {creatingOrders && (
+                                <div className="payment-result-status-block" role="status">
+                                    Đang tạo các món bữa ăn từ giỏ hàng của bạn…
+                                </div>
+                            )}
+
+                            {ordersCreated && (
+                                <div className="payment-result-status-block" role="status">
+                                    Đã tạo <strong>{ordersCount}</strong> món bữa ăn. Xem trong{' '}
+                                    <Link className="payment-result-link-inline" to="/subscriptions">
+                                        Gói đăng ký
+                                    </Link>{' '}
+                                    hoặc{' '}
+                                    <Link className="payment-result-link-inline" to="/orders">
+                                        Lịch sử đơn
+                                    </Link>
+                                    .
+                                </div>
+                            )}
+
+                            {checkoutError && (
+                                <div
+                                    className="payment-result-status-block payment-result-status-block--warn"
+                                    role="alert"
+                                >
+                                    Thanh toán đã thành công nhưng hệ thống chưa thể tạo tự động các món từ
+                                    giỏ hàng. Vui lòng kiểm tra{' '}
+                                    <Link className="payment-result-link-inline" to="/account">
+                                        Tài khoản
+                                    </Link>{' '}
+                                    hoặc thử đặt lại.
+                                </div>
+                            )}
+
+                            <div className="payment-result-steps" aria-label="Gợi ý bước tiếp theo">
+                                <div className="payment-result-step">
+                                    <ClipboardList size={18} />
+                                    <span>
+                                        Kiểm tra email / thông báo ngân hàng để đối chiếu giao dịch nếu cần.
+                                    </span>
+                                </div>
+                                <div className="payment-result-step">
+                                    <Package size={18} />
+                                    <span>
+                                        Mở{' '}
+                                        <Link className="payment-result-link-inline" to="/subscriptions">
+                                            Gói đăng ký
+                                        </Link>{' '}
+                                        để xem lịch ăn và đối tác.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="payment-result-actions">
+                                <Link to="/mainpage" className="payment-result-btn payment-result-btn--ghost">
+                                    Về trang chủ
+                                </Link>
+                                <Link
+                                    to="/subscriptions"
+                                    className="payment-result-btn payment-result-btn--primary"
+                                >
+                                    Xem gói & lịch ăn
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,4 +277,3 @@ function PaymentSuccess() {
 }
 
 export default PaymentSuccess;
-

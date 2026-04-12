@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-    Area,
     Bar,
     BarChart,
     CartesianGrid,
     Cell,
-    ComposedChart,
     Legend,
     Line,
+    LineChart,
     Pie,
     PieChart,
     ResponsiveContainer,
@@ -28,15 +27,6 @@ const SUBSCRIPTION_STATUS_LABELS = {
 };
 
 const PIE_COLORS = ['#f97316', '#0ea5e9', '#22c55e', '#94a3b8'];
-
-function formatAxisVnd(value) {
-    const v = Number(value);
-    if (!Number.isFinite(v) || v === 0) return '0';
-    if (v >= 1e9) return `${(v / 1e9).toFixed(1)}B`;
-    if (v >= 1e6) return `${(v / 1e6).toFixed(1)}M`;
-    if (v >= 1e3) return `${(v / 1e3).toFixed(0)}k`;
-    return String(Math.round(v));
-}
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -68,12 +58,11 @@ const AdminDashboard = () => {
         const rev = stats?.revenueByMonth;
         const subs = stats?.subscriptionsByMonth;
         const meals = stats?.mealOrdersByMonth;
-        if (!Array.isArray(rev) || !Array.isArray(subs)) return [];
-        return rev.map((row, i) => ({
-            label: row.label,
+        if (!Array.isArray(subs)) return [];
+        return subs.map((row, i) => ({
+            label: row.label ?? rev?.[i]?.label ?? row.month,
             month: row.month,
-            amount: Number(row.amount),
-            count: Number(subs[i]?.count ?? 0),
+            count: Number(row.count ?? 0),
             mealCount: Number(Array.isArray(meals) ? meals[i]?.count ?? 0 : 0)
         }));
     }, [stats]);
@@ -121,7 +110,7 @@ const AdminDashboard = () => {
             {extendedStatsMissing ? (
                 <div className="admin-dashboard-api-hint" role="status">
                     Một số ô hiển thị “—” vì máy chủ API chưa trả về chỉ số mở rộng (khách hoạt động, đối tác,
-                    doanh thu hoàn tất, v.v.). Hãy <strong>deploy lại backend</strong> bản mới nhất (nhánh có{' '}
+                    v.v.). Hãy <strong>deploy lại backend</strong> bản mới nhất (nhánh có{' '}
                     <code>AdminService.getDashboardStats</code> đầy đủ) hoặc trỏ admin về backend local khi dev.
                 </div>
             ) : null}
@@ -155,16 +144,6 @@ const AdminDashboard = () => {
                     <div className="admin-stat-card-sub">Từ giỏ hàng / đặt bữa </div>
                 </div>
                 <div className="admin-stat-card">
-                    <div className="admin-stat-label">Doanh thu (đã hoàn tất)</div>
-                    <div className="admin-stat-value admin-stat-value-accent">
-                        {formatMoneyVnd(stats?.completedRevenue)}
-                    </div>
-                    <div className="admin-stat-card-sub">
-                        TB / giao dịch: {formatMoneyVnd(stats?.averageCompletedPayment)}
-                    </div>
-                    
-                </div>
-                <div className="admin-stat-card">
                     <div className="admin-stat-label">Tổng ghi nhận thanh toán</div>
                     <div className="admin-stat-value">{formatMoneyVnd(stats?.totalRevenue)}</div>
                     <div className="admin-stat-card-sub">Mọi trạng thái thanh toán</div>
@@ -180,27 +159,19 @@ const AdminDashboard = () => {
 
             <div className="admin-dashboard-charts">
                 <div className="admin-panel admin-chart-panel admin-chart-panel-wide">
-                    <h3>Doanh thu, hợp đồng gói & suất món</h3>
-                    
+                    <h3>Hợp đồng gói & suất món theo tháng</h3>
+
                     {mergedTrend.length === 0 ? (
                         <div className="admin-chart-empty">Chưa có dữ liệu theo tháng.</div>
                     ) : (
                         <ResponsiveContainer width="100%" height={320}>
-                            <ComposedChart data={mergedTrend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                            <LineChart data={mergedTrend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                                 <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#64748b' }} />
                                 <YAxis
-                                    yAxisId="left"
-                                    tickFormatter={formatAxisVnd}
-                                    tick={{ fontSize: 11, fill: '#64748b' }}
-                                    width={48}
-                                />
-                                <YAxis
-                                    yAxisId="right"
-                                    orientation="right"
                                     allowDecimals={false}
                                     tick={{ fontSize: 11, fill: '#64748b' }}
-                                    width={36}
+                                    width={40}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -208,23 +179,9 @@ const AdminDashboard = () => {
                                         border: '1px solid #e2e8f0',
                                         boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
                                     }}
-                                    formatter={(val, name) => {
-                                        if (name === 'Doanh thu') return [formatMoneyVnd(val), name];
-                                        return [val, name];
-                                    }}
                                 />
                                 <Legend />
-                                <Area
-                                    yAxisId="left"
-                                    type="monotone"
-                                    dataKey="amount"
-                                    name="Doanh thu"
-                                    fill="#fed7aa"
-                                    stroke="#f97316"
-                                    strokeWidth={2}
-                                />
                                 <Line
-                                    yAxisId="right"
                                     type="monotone"
                                     dataKey="count"
                                     name="Hợp đồng gói mới"
@@ -233,7 +190,6 @@ const AdminDashboard = () => {
                                     dot={{ r: 3 }}
                                 />
                                 <Line
-                                    yAxisId="right"
                                     type="monotone"
                                     dataKey="mealCount"
                                     name="Suất món"
@@ -241,7 +197,7 @@ const AdminDashboard = () => {
                                     strokeWidth={2}
                                     dot={{ r: 3 }}
                                 />
-                            </ComposedChart>
+                            </LineChart>
                         </ResponsiveContainer>
                     )}
                 </div>

@@ -11,6 +11,7 @@ import {
     UtensilsCrossed
 } from 'lucide-react';
 import { cartService, discountService, paymentService, subscriptionService } from '../services/api';
+import { writeCheckoutMeta } from '../utils/checkoutMeta';
 import './Cart.css';
 
 const Cart = () => {
@@ -181,6 +182,15 @@ const Cart = () => {
 
             if (activeSubscriptions.length > 0 && selectedSubscriptionId) {
                 localStorage.setItem('bb_checkout_subscription_id', String(selectedSubscriptionId));
+                const sub = activeSubscriptions.find((s) => s.id === selectedSubscriptionId);
+                writeCheckoutMeta({
+                    flow: 'cart_subscription',
+                    subscriptionId: selectedSubscriptionId,
+                    packageId: sub?.packageId ?? null,
+                    packageName: sub?.packageName ?? null,
+                    price: sub?.totalAmount ?? null,
+                    imageUrl: null
+                });
 
                 const checkoutRes = await paymentService.createPayOSCheckout(selectedSubscriptionId);
                 const checkoutUrl = checkoutRes.data?.checkoutUrl;
@@ -207,6 +217,12 @@ const Cart = () => {
             if (subscriptionId) {
                 localStorage.setItem('bb_checkout_subscription_id', String(subscriptionId));
             }
+
+            writeCheckoutMeta({
+                flow: 'cart',
+                cartTotal: payableNum,
+                itemCount: cart.totalItems ?? 0
+            });
 
             window.location.href = checkoutUrl;
         } catch (err) {

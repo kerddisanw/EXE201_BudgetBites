@@ -7,9 +7,11 @@ import {
     ShieldCheck,
     Wallet,
     Sparkles,
-    ChevronRight
+    ChevronRight,
+    ImageOff
 } from 'lucide-react';
 import { packageService, subscriptionService, paymentService } from '../services/api';
+import { writeCheckoutMeta } from '../utils/checkoutMeta';
 import './Packages.css';
 
 function Packages() {
@@ -54,6 +56,16 @@ function Packages() {
             if (!checkoutUrl) {
                 throw new Error('Không thể tạo link thanh toán PayOS.');
             }
+
+            const pkg = packages.find((p) => p.id === packageId);
+            writeCheckoutMeta({
+                flow: 'package',
+                subscriptionId: created.data.id,
+                packageId,
+                packageName: pkg?.name ?? null,
+                price: pkg?.price ?? null,
+                imageUrl: pkg?.imageUrl || null
+            });
 
             window.location.href = checkoutUrl;
         } catch (err) {
@@ -176,6 +188,20 @@ function Packages() {
                     return (
                     <article key={pkg.id} className="package-card">
                         <span className="package-badge">{getCardBadge(pkg, idx)}</span>
+                        <div className="package-card-media">
+                            {pkg.imageUrl ? (
+                                <img
+                                    src={pkg.imageUrl}
+                                    alt={pkg.name ? `Ảnh gói: ${pkg.name}` : 'Ảnh gói combo'}
+                                    className="package-card-image"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className="package-card-image-placeholder">
+                                    <ImageOff size={28} strokeWidth={1.5} />
+                                </div>
+                            )}
+                        </div>
                         <header className="package-card-header">
                             <h2 className="package-name">{pkg.name}</h2>
                             <div className="package-price">
