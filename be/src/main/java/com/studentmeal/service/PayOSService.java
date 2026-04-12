@@ -71,9 +71,9 @@ public class PayOSService {
             ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                String body = response.getBody();
+                String responseBody = response.getBody();
                 throw new IllegalStateException(
-                        "PayOS HTTP " + response.getStatusCode() + (body != null ? ": " + body : ""));
+                        "PayOS HTTP " + response.getStatusCode() + (responseBody != null ? ": " + responseBody : ""));
             }
 
             JsonNode root = objectMapper.readTree(response.getBody());
