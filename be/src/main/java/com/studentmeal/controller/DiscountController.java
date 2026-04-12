@@ -2,6 +2,7 @@ package com.studentmeal.controller;
 
 import com.studentmeal.dto.DiscountDTO;
 import com.studentmeal.dto.DiscountRequest;
+import com.studentmeal.dto.DiscountUpdateRequest;
 import com.studentmeal.service.DiscountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +38,21 @@ public class DiscountController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DiscountDTO> createDiscount(@RequestBody DiscountRequest request) {
         return ResponseEntity.ok(discountService.createDiscount(request));
+    }
+
+    @PutMapping("/id/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DiscountDTO> updateDiscount(
+            @PathVariable Long id,
+            @RequestBody DiscountUpdateRequest request) {
+        return ResponseEntity.ok(discountService.updateDiscount(id, request));
+    }
+
+    @PatchMapping("/id/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DiscountDTO> patchDiscountStatus(
+            @PathVariable Long id,
+            @RequestParam("value") String status) {
+        return ResponseEntity.ok(discountService.setDiscountStatus(id, status));
     }
 }

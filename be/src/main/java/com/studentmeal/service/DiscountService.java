@@ -2,6 +2,7 @@ package com.studentmeal.service;
 
 import com.studentmeal.dto.DiscountDTO;
 import com.studentmeal.dto.DiscountRequest;
+import com.studentmeal.dto.DiscountUpdateRequest;
 import com.studentmeal.entity.DiscountCode;
 import com.studentmeal.exception.ResourceNotFoundException;
 import com.studentmeal.repository.DiscountCodeRepository;
@@ -58,8 +59,26 @@ public class DiscountService {
 
     @Transactional
     public DiscountDTO createDiscount(DiscountRequest request) {
+        if (request.getCode() == null || request.getCode().isBlank()) {
+            throw new IllegalArgumentException("Mã không được để trống");
+        }
+        if (discountCodeRepository.findByCode(request.getCode().trim()).isPresent()) {
+            throw new IllegalArgumentException("Mã giảm giá đã tồn tại");
+        }
+        if (request.getDiscountPercent() == null || request.getDiscountPercent().signum() <= 0) {
+            throw new IllegalArgumentException("Phần trăm giảm phải lớn hơn 0");
+        }
+        if (request.getValidFrom() == null || request.getValidTo() == null) {
+            throw new IllegalArgumentException("Ngày hiệu lực không hợp lệ");
+        }
+        if (request.getValidTo().isBefore(request.getValidFrom())) {
+            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
+        }
+        if (request.getMaxUsage() == null || request.getMaxUsage() < 0) {
+            throw new IllegalArgumentException("Số lần dùng không hợp lệ");
+        }
         DiscountCode discountCode = new DiscountCode();
-        discountCode.setCode(request.getCode());
+        discountCode.setCode(request.getCode().trim());
         discountCode.setDiscountPercent(request.getDiscountPercent());
         discountCode.setValidFrom(request.getValidFrom());
         discountCode.setValidTo(request.getValidTo());
@@ -67,6 +86,58 @@ public class DiscountService {
         discountCode.setStatus("ACTIVE"); // status mặc định khi tạo
 
         return convertToDTO(discountCodeRepository.save(discountCode));
+    }
+
+    @Transactional
+    public DiscountDTO updateDiscount(Long id, DiscountUpdateRequest request) {
+        DiscountCode dc = discountCodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
+        String newCode = request.getCode() == null ? "" : request.getCode().trim();
+        if (newCode.isEmpty()) {
+            throw new IllegalArgumentException("Mã không được để trống");
+        }
+        if (!dc.getCode().equals(newCode) && discountCodeRepository.countOtherWithCode(newCode, id) > 0) {
+            throw new IllegalArgumentException("Mã giảm giá đã tồn tại");
+        }
+        if (request.getDiscountPercent() == null || request.getDiscountPercent().signum() <= 0) {
+            throw new IllegalArgumentException("Phần trăm giảm phải lớn hơn 0");
+        }
+        if (request.getValidFrom() == null || request.getValidTo() == null) {
+            throw new IllegalArgumentException("Ngày hiệu lực không hợp lệ");
+        }
+        if (request.getValidTo().isBefore(request.getValidFrom())) {
+            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
+        }
+        if (request.getMaxUsage() == null || request.getMaxUsage() < 0) {
+            throw new IllegalArgumentException("Số lần dùng không hợp lệ");
+        }
+        String status = normalizeStatus(request.getStatus());
+        dc.setCode(newCode);
+        dc.setDiscountPercent(request.getDiscountPercent());
+        dc.setValidFrom(request.getValidFrom());
+        dc.setValidTo(request.getValidTo());
+        dc.setMaxUsage(request.getMaxUsage());
+        dc.setStatus(status);
+        return convertToDTO(discountCodeRepository.save(dc));
+    }
+
+    @Transactional
+    public DiscountDTO setDiscountStatus(Long id, String rawStatus) {
+        DiscountCode dc = discountCodeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
+        dc.setStatus(normalizeStatus(rawStatus));
+        return convertToDTO(discountCodeRepository.save(dc));
+    }
+
+    private static String normalizeStatus(String raw) {
+        if (raw == null || raw.isBlank()) {
+            throw new IllegalArgumentException("Trạng thái không hợp lệ");
+        }
+        String s = raw.trim().toUpperCase();
+        if (!s.equals("ACTIVE") && !s.equals("INACTIVE") && !s.equals("EXPIRED")) {
+            throw new IllegalArgumentException("Trạng thái phải là ACTIVE, INACTIVE hoặc EXPIRED");
+        }
+        return s;
     }
 
     private DiscountDTO convertToDTO(DiscountCode discountCode) {
