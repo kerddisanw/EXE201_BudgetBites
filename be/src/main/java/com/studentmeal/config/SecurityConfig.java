@@ -87,6 +87,7 @@ public class SecurityConfig {
                 "http://localhost:*",
                 "http://127.0.0.1:*",
                 "https://exe201-budgetbites-1.onrender.com",
+                "https://exe201-budgetbites-2.onrender.com",
                 "https://exe201-budgetbites.onrender.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
