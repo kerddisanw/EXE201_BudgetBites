@@ -25,71 +25,83 @@ import javax.crypto.spec.SecretKeySpec;
 public class PayOSService {
 
     private final PayOSConfig payOSConfig;
+    private final PayOsOrderCodeSequence payOsOrderCodeSequence;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
     public record PayOSCheckoutResponse(String checkoutUrl, String orderCode) {}
     public record PayOSWebhookResult(String orderCode, boolean paymentSuccess) {}
 
+    /**
+     * Creates a PayOS payment request. {@code orderCode} comes from a DB sequence (not {@code payment.id}) so PayOS
+     * never sees reused low ids; the sequence is unique across restarts and multiple app instances.
+     */
     public PayOSCheckoutResponse createCheckout(Payment payment) {
         try {
-            if (payOSConfig.getClientId() == null || payOSConfig.getClientId().isBlank()
-                    || payOSConfig.getApiKey() == null || payOSConfig.getApiKey().isBlank()
-                    || payOSConfig.getChecksumKey() == null || payOSConfig.getChecksumKey().isBlank()) {
-                throw new IllegalStateException(
-                        "PayOS is not configured (set PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY on the server)");
-            }
-            if (payOSConfig.getReturnUrl() == null || payOSConfig.getReturnUrl().isBlank()
-                    || payOSConfig.getCancelUrl() == null || payOSConfig.getCancelUrl().isBlank()) {
-                throw new IllegalStateException(
-                        "PayOS return/cancel URLs missing (set payos.return-url / payos.cancel-url or FRONTEND_BASE_URL)");
-            }
-            // payOS expects orderCode as integer
-            int orderCodeInt = Math.toIntExact(payment.getId());
-            String orderCode = String.valueOf(orderCodeInt);
-
-            Map<String, Object> body = new HashMap<>();
-            body.put("orderCode", orderCodeInt);
-            body.put("amount", toMinorUnits(payment.getAmount()));
-            // With non-linked bank accounts, description length may be limited.
-            body.put("description", "BudgetB");
-            body.put("returnUrl", payOSConfig.getReturnUrl());
-            body.put("cancelUrl", payOSConfig.getCancelUrl());
-
-            String signature = signPaymentRequest(body);
-            body.put("signature", signature);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("x-client-id", payOSConfig.getClientId());
-            headers.set("x-api-key", payOSConfig.getApiKey());
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
-            String url = payOSConfig.getBaseUrl().replaceAll("/+$", "") + "/v2/payment-requests";
-
-            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                String responseBody = response.getBody();
-                throw new IllegalStateException(
-                        "PayOS HTTP " + response.getStatusCode() + (responseBody != null ? ": " + responseBody : ""));
-            }
-
-            JsonNode root = objectMapper.readTree(response.getBody());
-            assertPayOsBusinessSuccess(root);
-
-            JsonNode dataNode = root.path("data");
-            String checkoutUrl = dataNode.path("checkoutUrl").asText(null);
-
-            if (checkoutUrl == null || checkoutUrl.isBlank()) {
-                throw new IllegalStateException("PayOS response missing checkoutUrl: " + response.getBody());
-            }
-
-            return new PayOSCheckoutResponse(checkoutUrl, orderCode);
+            validatePayOsConfig();
+            int orderCodeInt = payOsOrderCodeSequence.nextOrderCode();
+            return postPaymentRequest(payment, orderCodeInt);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create PayOS checkout: " + e.getMessage(), e);
         }
+    }
+
+    private void validatePayOsConfig() {
+        if (payOSConfig.getClientId() == null || payOSConfig.getClientId().isBlank()
+                || payOSConfig.getApiKey() == null || payOSConfig.getApiKey().isBlank()
+                || payOSConfig.getChecksumKey() == null || payOSConfig.getChecksumKey().isBlank()) {
+            throw new IllegalStateException(
+                    "PayOS is not configured (set PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY on the server)");
+        }
+        if (payOSConfig.getReturnUrl() == null || payOSConfig.getReturnUrl().isBlank()
+                || payOSConfig.getCancelUrl() == null || payOSConfig.getCancelUrl().isBlank()) {
+            throw new IllegalStateException(
+                    "PayOS return/cancel URLs missing (set payos.return-url / payos.cancel-url or FRONTEND_BASE_URL)");
+        }
+    }
+
+    private PayOSCheckoutResponse postPaymentRequest(Payment payment, int orderCodeInt) throws Exception {
+        String orderCode = String.valueOf(orderCodeInt);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("orderCode", orderCodeInt);
+        body.put("amount", toMinorUnits(payment.getAmount()));
+        // With non-linked bank accounts, description length may be limited.
+        body.put("description", "BudgetB");
+        body.put("returnUrl", payOSConfig.getReturnUrl());
+        body.put("cancelUrl", payOSConfig.getCancelUrl());
+
+        String signature = signPaymentRequest(body);
+        body.put("signature", signature);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-client-id", payOSConfig.getClientId());
+        headers.set("x-api-key", payOSConfig.getApiKey());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        String url = payOSConfig.getBaseUrl().replaceAll("/+$", "") + "/v2/payment-requests";
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            String responseBody = response.getBody();
+            throw new IllegalStateException(
+                    "PayOS HTTP " + response.getStatusCode() + (responseBody != null ? ": " + responseBody : ""));
+        }
+
+        JsonNode root = objectMapper.readTree(response.getBody());
+        assertPayOsBusinessSuccess(root);
+
+        JsonNode dataNode = root.path("data");
+        String checkoutUrl = dataNode.path("checkoutUrl").asText(null);
+
+        if (checkoutUrl == null || checkoutUrl.isBlank()) {
+            throw new IllegalStateException("PayOS response missing checkoutUrl: " + response.getBody());
+        }
+
+        return new PayOSCheckoutResponse(checkoutUrl, orderCode);
     }
 
     /**
