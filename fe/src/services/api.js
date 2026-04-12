@@ -43,16 +43,37 @@ api.interceptors.response.use(
     }
 );
 
+const MAX_AVATAR_BYTES = 10 * 1024 * 1024;
+
 export const authService = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
     googleLogin: (idToken) => api.post('/auth/google', { idToken }),
     getProfile: () => api.get('/users/me'),
+    updateProfile: (body) => api.put('/users/me', body),
+    uploadAvatar: (file) => {
+        if (file.size > MAX_AVATAR_BYTES) {
+            return Promise.reject(new Error('FILE_TOO_LARGE'));
+        }
+        const fd = new FormData();
+        fd.append('file', file);
+        return api.post('/images/users', fd, {
+            timeout: 120000,
+            transformRequest: [
+                (_data, headers) => {
+                    delete headers['Content-Type'];
+                    return _data;
+                }
+            ]
+        });
+    },
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     }
 };
+
+export { MAX_AVATAR_BYTES as MAX_USER_AVATAR_BYTES };
 
 
 export const packageService = {

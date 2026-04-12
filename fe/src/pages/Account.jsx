@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, NavLink, Link } from 'react-router-dom';
+import { useNavigate, NavLink, Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
     User,
     Package,
     Gift,
     Star,
-    Crown,
-    CreditCard,
-    Bell,
     Settings,
     StarIcon,
     LogOut,
     Box,
     ChevronRight,
-    X
+    X,
+    Camera
 } from 'lucide-react';
 import { authService, subscriptionService } from '../services/api';
 import { fetchAllMyOrdersFromSubscriptions } from '../utils/orderUtils';
@@ -29,6 +27,25 @@ const Account = () => {
     const [orders, setOrders] = useState([]);
     const [cancellingSubId, setCancellingSubId] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
+    const isProfileSection =
+        location.pathname === '/account' && searchParams.get('section') === 'profile';
+
+    const [profileForm, setProfileForm] = useState({
+        fullName: '',
+        phoneNumber: '',
+        address: '',
+        university: '',
+        studentId: '',
+        avatarUrl: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [profileSaving, setProfileSaving] = useState(false);
+    const [profileMsg, setProfileMsg] = useState('');
+    const [profileErr, setProfileErr] = useState('');
+    const [avatarUploading, setAvatarUploading] = useState(false);
 
     const handleLogout = () => {
         authService.logout();
@@ -83,6 +100,121 @@ const Account = () => {
             isMounted = false;
         };
     }, []);
+
+    useEffect(() => {
+        if (!profile) return;
+        setProfileForm({
+            fullName: profile.fullName || '',
+            phoneNumber: profile.phoneNumber || '',
+            address: profile.address || '',
+            university: profile.university || '',
+            studentId: profile.studentId || '',
+            avatarUrl: profile.avatarUrl || '',
+            newPassword: '',
+            confirmPassword: ''
+        });
+    }, [profile]);
+
+    useEffect(() => {
+        setProfileMsg('');
+        setProfileErr('');
+    }, [isProfileSection]);
+
+    const mergeStoredUser = (p) => {
+        try {
+            const raw = localStorage.getItem('user');
+            if (!raw) return;
+            const u = JSON.parse(raw);
+            if (u && typeof u === 'object') {
+                u.fullName = p.fullName;
+                u.avatarUrl = p.avatarUrl;
+                localStorage.setItem('user', JSON.stringify(u));
+            }
+        } catch {
+            /* ignore */
+        }
+    };
+
+    const handleAvatarFile = async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            setProfileErr('Vui lòng chọn file ảnh.');
+            return;
+        }
+        setProfileErr('');
+        setProfileMsg('');
+        setAvatarUploading(true);
+        try {
+            const res = await authService.uploadAvatar(file);
+            const url = res.data?.imageUrl;
+            if (url) {
+                setProfileForm((f) => ({ ...f, avatarUrl: url }));
+                setProfileMsg('Đã tải ảnh lên. Nhấn “Lưu hồ sơ” để lưu vào tài khoản.');
+            }
+        } catch (err) {
+            if (err.message === 'FILE_TOO_LARGE') {
+                setProfileErr('Ảnh tối đa 10MB.');
+            } else {
+                setProfileErr(
+                    err.response?.data?.message ||
+                        'Upload ảnh thất bại. Kiểm tra Cloudinary trên server hoặc dán URL ảnh.'
+                );
+            }
+        } finally {
+            setAvatarUploading(false);
+        }
+    };
+
+    const handleProfileSave = async (e) => {
+        e.preventDefault();
+        setProfileMsg('');
+        setProfileErr('');
+        if (!profileForm.fullName.trim()) {
+            setProfileErr('Nhập họ tên.');
+            return;
+        }
+        if (!profileForm.studentId.trim()) {
+            setProfileErr('Nhập mã sinh viên.');
+            return;
+        }
+        if (profileForm.newPassword && profileForm.newPassword.length < 6) {
+            setProfileErr('Mật khẩu mới cần ít nhất 6 ký tự.');
+            return;
+        }
+        if (profileForm.newPassword !== profileForm.confirmPassword) {
+            setProfileErr('Mật khẩu xác nhận không khớp.');
+            return;
+        }
+        const body = {
+            fullName: profileForm.fullName.trim(),
+            phoneNumber: profileForm.phoneNumber.trim() || null,
+            address: profileForm.address.trim() || null,
+            university: profileForm.university.trim() || null,
+            studentId: profileForm.studentId.trim(),
+            avatarUrl: profileForm.avatarUrl.trim() || null
+        };
+        if (profileForm.newPassword) {
+            body.password = profileForm.newPassword;
+        }
+        setProfileSaving(true);
+        try {
+            const res = await authService.updateProfile(body);
+            setProfile(res.data);
+            setProfileForm((f) => ({ ...f, newPassword: '', confirmPassword: '' }));
+            mergeStoredUser(res.data);
+            setProfileMsg('Đã lưu hồ sơ.');
+        } catch (err) {
+            setProfileErr(
+                err.response?.data?.message ||
+                    (typeof err.response?.data === 'string' ? err.response.data : null) ||
+                    'Không lưu được. Thử lại sau.'
+            );
+        } finally {
+            setProfileSaving(false);
+        }
+    };
 
     const refetchSubsAndOrders = async () => {
         try {
@@ -204,6 +336,12 @@ const Account = () => {
     const navLinkClass = ({ isActive }) =>
         'account-nav-item' + (isActive ? ' account-nav-active' : '');
 
+    const overviewNavClass =
+        'account-nav-item' +
+        (location.pathname === '/account' && !isProfileSection ? ' account-nav-active' : '');
+    const profileNavClass =
+        'account-nav-item' + (isProfileSection ? ' account-nav-active' : '');
+
     return (
         <div className="account-page">
             <header className="account-hero" aria-labelledby="account-hero-title">
@@ -212,9 +350,13 @@ const Account = () => {
                         <User size={18} strokeWidth={2} />
                         Tài khoản
                     </span>
-                    <h1 id="account-hero-title">Xin chào, {profile.fullName}!</h1>
+                    <h1 id="account-hero-title">
+                        {isProfileSection ? 'Quản lý hồ sơ' : `Xin chào, ${profile.fullName}!`}
+                    </h1>
                     <p className="account-hero-lead">
-                        Theo dõi đơn hàng, điểm thưởng và gói đăng ký tại một nơi.
+                        {isProfileSection
+                            ? 'Cập nhật thông tin cá nhân và ảnh đại diện.'
+                            : 'Theo dõi đơn hàng, điểm thưởng và gói đăng ký tại một nơi.'}
                     </p>
                 </div>
             </header>
@@ -224,7 +366,15 @@ const Account = () => {
                     <aside className="account-sidebar">
                         <div className="account-profile-card">
                             <div className="account-avatar">
-                                {profile.fullName?.charAt(0)?.toUpperCase() || '?'}
+                                {profile.avatarUrl ? (
+                                    <img
+                                        src={profile.avatarUrl}
+                                        alt=""
+                                        className="account-avatar-img"
+                                    />
+                                ) : (
+                                    profile.fullName?.charAt(0)?.toUpperCase() || '?'
+                                )}
                             </div>
                             <div className="account-profile-info">
                                 <span className="account-user-name">{profile.fullName}</span>
@@ -239,35 +389,19 @@ const Account = () => {
                         </div>
 
                         <nav className="account-nav" aria-label="Menu tài khoản">
-                            <NavLink to="/account" end className={navLinkClass}>
+                            <Link to="/account" className={overviewNavClass}>
                                 <User size={18} />
                                 <span>Tổng quan</span>
-                            </NavLink>
+                            </Link>
                             <NavLink to="/orders" className={navLinkClass}>
                                 <Package size={18} />
                                 <span>Đơn hàng của bạn</span>
                             </NavLink>
-                            <NavLink to="/packages" className={navLinkClass}>
-                                <Gift size={18} />
-                                <span>Khuyến mãi của tôi</span>
-                            </NavLink>
-                            <Link to="/account" className="account-nav-item">
-                                <Star size={18} />
-                                <span>Điểm tích lũy</span>
-                            </Link>
-                            <Link to="/account" className="account-nav-item">
-                                <Crown size={18} />
-                                <span>BudgetBites VIP</span>
-                            </Link>
                             <NavLink to="/subscriptions" className={navLinkClass}>
-                                <CreditCard size={18} />
-                                <span>Liên kết thanh toán</span>
+                                <Gift size={18} />
+                                <span>Gói đăng ký của tôi</span>
                             </NavLink>
-                            <NavLink to="/support" className={navLinkClass}>
-                                <Bell size={18} />
-                                <span>Thông báo</span>
-                            </NavLink>
-                            <Link to="/account" className="account-nav-item">
+                            <Link to="/account?section=profile" className={profileNavClass}>
                                 <Settings size={18} />
                                 <span>Quản lý hồ sơ</span>
                             </Link>
@@ -288,6 +422,211 @@ const Account = () => {
                     </aside>
 
                     <main className="account-main">
+                        {isProfileSection ? (
+                            <section className="account-section account-profile-section" id="account-profile">
+                                <h2 className="account-section-title">Thông tin của bạn</h2>
+                                {profileMsg ? (
+                                    <div className="account-profile-banner account-profile-banner--ok" role="status">
+                                        {profileMsg}
+                                    </div>
+                                ) : null}
+                                {profileErr ? (
+                                    <div className="account-profile-banner account-profile-banner--err" role="alert">
+                                        {profileErr}
+                                    </div>
+                                ) : null}
+
+                                <form className="account-profile-form" onSubmit={handleProfileSave}>
+                                    <div className="account-profile-avatar-block">
+                                        <div className="account-profile-avatar-preview">
+                                            {profileForm.avatarUrl ? (
+                                                <img src={profileForm.avatarUrl} alt="" />
+                                            ) : (
+                                                <span>
+                                                    {profileForm.fullName?.charAt(0)?.toUpperCase() ||
+                                                        '?'}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="account-profile-avatar-side">
+                                            <input
+                                                id="account-avatar-file"
+                                                type="file"
+                                                accept="image/*"
+                                                className="account-file-input-hidden"
+                                                onChange={handleAvatarFile}
+                                                disabled={avatarUploading || profileSaving}
+                                            />
+                                            <label
+                                                htmlFor="account-avatar-file"
+                                                className={
+                                                    'account-profile-upload-btn' +
+                                                    (avatarUploading || profileSaving
+                                                        ? ' account-profile-upload-btn--disabled'
+                                                        : '')
+                                                }
+                                            >
+                                                <Camera size={16} />
+                                                {avatarUploading ? 'Đang tải…' : 'Chọn ảnh đại diện'}
+                                            </label>
+                                            <p className="account-profile-upload-hint">
+                                                JPG, PNG, WebP… · tối đa 10MB. Sau khi chọn, bấm{' '}
+                                                <strong>Lưu hồ sơ</strong> bên dưới.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="account-profile-fields">
+                                        <div className="account-profile-field">
+                                            <label htmlFor="pf-email">Email</label>
+                                            <input
+                                                id="pf-email"
+                                                type="email"
+                                                value={profile.email || ''}
+                                                readOnly
+                                                className="account-profile-input account-profile-input--readonly"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field">
+                                            <label htmlFor="pf-name">Họ và tên *</label>
+                                            <input
+                                                id="pf-name"
+                                                value={profileForm.fullName}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        fullName: e.target.value
+                                                    }))
+                                                }
+                                                required
+                                                className="account-profile-input"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field">
+                                            <label htmlFor="pf-phone">Số điện thoại</label>
+                                            <input
+                                                id="pf-phone"
+                                                value={profileForm.phoneNumber}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        phoneNumber: e.target.value
+                                                    }))
+                                                }
+                                                className="account-profile-input"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field">
+                                            <label htmlFor="pf-student">Mã sinh viên *</label>
+                                            <input
+                                                id="pf-student"
+                                                value={profileForm.studentId}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        studentId: e.target.value
+                                                    }))
+                                                }
+                                                required
+                                                className="account-profile-input"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field account-profile-field--full">
+                                            <label htmlFor="pf-uni">Trường / Đại học</label>
+                                            <input
+                                                id="pf-uni"
+                                                value={profileForm.university}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        university: e.target.value
+                                                    }))
+                                                }
+                                                className="account-profile-input"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field account-profile-field--full">
+                                            <label htmlFor="pf-address">Địa chỉ</label>
+                                            <textarea
+                                                id="pf-address"
+                                                rows={3}
+                                                value={profileForm.address}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        address: e.target.value
+                                                    }))
+                                                }
+                                                className="account-profile-textarea"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field account-profile-field--full">
+                                            <label htmlFor="pf-avatar-url">Hoặc dán URL ảnh đại diện</label>
+                                            <input
+                                                id="pf-avatar-url"
+                                                type="url"
+                                                value={profileForm.avatarUrl}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        avatarUrl: e.target.value
+                                                    }))
+                                                }
+                                                placeholder="https://…"
+                                                className="account-profile-input"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field">
+                                            <label htmlFor="pf-pass">Mật khẩu mới (tuỳ chọn)</label>
+                                            <input
+                                                id="pf-pass"
+                                                type="password"
+                                                autoComplete="new-password"
+                                                value={profileForm.newPassword}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        newPassword: e.target.value
+                                                    }))
+                                                }
+                                                className="account-profile-input"
+                                                placeholder="Để trống nếu giữ mật khẩu cũ"
+                                            />
+                                        </div>
+                                        <div className="account-profile-field">
+                                            <label htmlFor="pf-pass2">Xác nhận mật khẩu</label>
+                                            <input
+                                                id="pf-pass2"
+                                                type="password"
+                                                autoComplete="new-password"
+                                                value={profileForm.confirmPassword}
+                                                onChange={(e) =>
+                                                    setProfileForm((f) => ({
+                                                        ...f,
+                                                        confirmPassword: e.target.value
+                                                    }))
+                                                }
+                                                className="account-profile-input"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="account-profile-actions">
+                                        <button
+                                            type="submit"
+                                            className="account-profile-save"
+                                            disabled={profileSaving || avatarUploading}
+                                        >
+                                            {profileSaving ? 'Đang lưu…' : 'Lưu hồ sơ'}
+                                        </button>
+                                        <Link to="/account" className="account-profile-cancel">
+                                            Quay lại tổng quan
+                                        </Link>
+                                    </div>
+                                </form>
+                            </section>
+                        ) : (
+                            <>
                         <div className="account-stats">
                             <div className="account-stat-card">
                                 <div className="account-stat-icon account-stat-orders">
@@ -440,6 +779,8 @@ const Account = () => {
                                     </div>
                                 )}
                             </section>
+                        )}
+                            </>
                         )}
                     </main>
                 </div>

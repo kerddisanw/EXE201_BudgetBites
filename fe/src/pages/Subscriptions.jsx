@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { subscriptionService } from '../services/api';
 import { isCartCheckoutNoPackageSubscription } from '../utils/subscriptionUtils';
 import './Subscriptions.css';
@@ -78,6 +78,12 @@ function Subscriptions() {
     if (loading) {
         return (
             <div className="subscriptions-page subscriptions-page-loading bb-page-loading">
+                <div className="subscriptions-back-row subscriptions-back-row--loading">
+                    <Link to="/account" className="subscriptions-back">
+                        <ArrowLeft size={18} />
+                        Quay lại tài khoản
+                    </Link>
+                </div>
                 <div className="bb-spinner" />
             </div>
         );
@@ -85,6 +91,12 @@ function Subscriptions() {
 
     return (
         <div className="subscriptions-page">
+            <div className="subscriptions-back-row">
+                <Link to="/account" className="subscriptions-back">
+                    <ArrowLeft size={18} />
+                    Quay lại tài khoản
+                </Link>
+            </div>
             <section className="subscriptions-header">
                 <div>
                     <h1>Gói đăng ký của bạn</h1>
