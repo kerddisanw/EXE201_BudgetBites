@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,17 @@ public class PayOSService {
 
     public PayOSCheckoutResponse createCheckout(Payment payment) {
         try {
+            if (payOSConfig.getClientId() == null || payOSConfig.getClientId().isBlank()
+                    || payOSConfig.getApiKey() == null || payOSConfig.getApiKey().isBlank()
+                    || payOSConfig.getChecksumKey() == null || payOSConfig.getChecksumKey().isBlank()) {
+                throw new IllegalStateException(
+                        "PayOS is not configured (set PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY on the server)");
+            }
+            if (payOSConfig.getReturnUrl() == null || payOSConfig.getReturnUrl().isBlank()
+                    || payOSConfig.getCancelUrl() == null || payOSConfig.getCancelUrl().isBlank()) {
+                throw new IllegalStateException(
+                        "PayOS return/cancel URLs missing (set payos.return-url / payos.cancel-url or FRONTEND_BASE_URL)");
+            }
             // payOS expects orderCode as integer
             int orderCodeInt = Math.toIntExact(payment.getId());
             String orderCode = String.valueOf(orderCodeInt);
@@ -59,25 +71,51 @@ public class PayOSService {
             ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new IllegalStateException("PayOS create payment failed with status " + response.getStatusCode());
+                String body = response.getBody();
+                throw new IllegalStateException(
+                        "PayOS HTTP " + response.getStatusCode() + (body != null ? ": " + body : ""));
             }
 
             JsonNode root = objectMapper.readTree(response.getBody());
+            assertPayOsBusinessSuccess(root);
+
             JsonNode dataNode = root.path("data");
             String checkoutUrl = dataNode.path("checkoutUrl").asText(null);
 
             if (checkoutUrl == null || checkoutUrl.isBlank()) {
-                throw new IllegalStateException("PayOS response missing checkoutUrl");
+                throw new IllegalStateException("PayOS response missing checkoutUrl: " + response.getBody());
             }
 
             return new PayOSCheckoutResponse(checkoutUrl, orderCode);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create PayOS checkout", e);
+            throw new RuntimeException("Failed to create PayOS checkout: " + e.getMessage(), e);
         }
     }
 
+    /**
+     * PayOS returns HTTP 200 with a business {@code code}; success is usually {@code "00"} or {@code 0}.
+     */
+    private static void assertPayOsBusinessSuccess(JsonNode root) {
+        if (!root.has("code") || root.get("code").isNull()) {
+            return;
+        }
+        JsonNode codeNode = root.get("code");
+        boolean ok =
+                (codeNode.isTextual() && "00".equals(codeNode.asText()))
+                        || (codeNode.isNumber() && codeNode.asInt() == 0);
+        if (ok) {
+            return;
+        }
+        String desc = root.path("desc").asText(root.path("message").asText("Payment request rejected"));
+        throw new IllegalStateException("PayOS API: " + desc + " (code=" + codeNode + ")");
+    }
+
+    /** Whole VND (PayOS amount is an integer). DB may store scale 2 — round safely. */
     private long toMinorUnits(BigDecimal amount) {
-        return amount.movePointRight(0).longValueExact();
+        if (amount == null) {
+            throw new IllegalArgumentException("Payment amount is null");
+        }
+        return amount.setScale(0, RoundingMode.HALF_UP).longValueExact();
     }
 
     private String signPaymentRequest(Map<String, Object> body) throws Exception {
