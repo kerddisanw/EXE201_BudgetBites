@@ -1,5 +1,6 @@
 package com.studentmeal.service;
 
+import com.studentmeal.dto.CustomerProfileUpdateRequest;
 import com.studentmeal.entity.Customer;
 import com.studentmeal.exception.ResourceNotFoundException;
 import com.studentmeal.repository.CustomerRepository;
@@ -23,16 +24,29 @@ public class ProfileService {
     }
 
     @Transactional
-    public Customer updateProfile(Customer profileDetails) {
+    public Customer updateProfile(CustomerProfileUpdateRequest req) {
         Customer customer = getProfile();
-        customer.setFullName(profileDetails.getFullName());
-        customer.setPhoneNumber(profileDetails.getPhoneNumber());
-        customer.setAddress(profileDetails.getAddress());
-        customer.setUniversity(profileDetails.getUniversity());
-        customer.setStudentId(profileDetails.getStudentId());
 
-        if (profileDetails.getPassword() != null && !profileDetails.getPassword().isEmpty()) {
-            customer.setPassword(passwordEncoder.encode(profileDetails.getPassword()));
+        if (req.getFullName() != null && !req.getFullName().isBlank()) {
+            customer.setFullName(req.getFullName().trim());
+        }
+        if (req.getPhoneNumber() != null) {
+            customer.setPhoneNumber(req.getPhoneNumber().isBlank() ? null : req.getPhoneNumber().trim());
+        }
+        if (req.getAddress() != null) {
+            customer.setAddress(req.getAddress().isBlank() ? null : req.getAddress().trim());
+        }
+        if (req.getUniversity() != null) {
+            customer.setUniversity(req.getUniversity().isBlank() ? null : req.getUniversity().trim());
+        }
+        if (req.getStudentId() != null && !req.getStudentId().isBlank()) {
+            customer.setStudentId(req.getStudentId().trim());
+        }
+        if (req.getAvatarUrl() != null) {
+            customer.setAvatarUrl(req.getAvatarUrl().isBlank() ? null : req.getAvatarUrl().trim());
+        }
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            customer.setPassword(passwordEncoder.encode(req.getPassword()));
         }
 
         return customerRepository.save(customer);

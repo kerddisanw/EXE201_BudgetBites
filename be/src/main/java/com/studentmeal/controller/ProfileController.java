@@ -1,5 +1,6 @@
 package com.studentmeal.controller;
 
+import com.studentmeal.dto.CustomerProfileUpdateRequest;
 import com.studentmeal.entity.Customer;
 import com.studentmeal.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +27,7 @@ public class ProfileController {
 
     @PutMapping
     @Operation(summary = "Update current user profile")
-    public ResponseEntity<Customer> updateProfile(@RequestBody Customer customer) {
-        return ResponseEntity.ok(profileService.updateProfile(customer));
+    public ResponseEntity<Customer> updateProfile(@RequestBody CustomerProfileUpdateRequest request) {
+        return ResponseEntity.ok(profileService.updateProfile(request));
     }
 }

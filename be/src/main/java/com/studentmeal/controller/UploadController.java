@@ -56,4 +56,16 @@ public class UploadController {
         String url = cloudinaryService.uploadImage(file, "packages");
         return ResponseEntity.ok(Map.of("imageUrl", url));
     }
+
+    /**
+     * Upload ảnh đại diện khách hàng (avatar)
+     * POST /api/images/users — multipart field "file"
+     */
+    @PostMapping(value = "/users", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload ảnh đại diện người dùng lên Cloudinary", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)))
+    public ResponseEntity<Map<String, String>> uploadUserAvatar(
+            @RequestPart("file") MultipartFile file) throws IOException {
+        String url = cloudinaryService.uploadImage(file, "users");
+        return ResponseEntity.ok(Map.of("imageUrl", url));
+    }
 }
