@@ -40,6 +40,11 @@ const ADMIN_TITLES = [
         match: (p) => p.startsWith('/subscriptions'),
         title: 'Gói đăng ký',
         sub: 'Theo dõi và cập nhật trạng thái'
+    },
+    {
+        match: (p) => p.startsWith('/discount-codes'),
+        title: 'Mã giảm giá',
+        sub: 'Tạo và quản lý mã khuyến mãi cho khách'
     }
 ];
 
@@ -124,6 +129,13 @@ const AdminLayout = () => {
                         onClick={() => setSidebarOpen(false)}
                     >
                         Gói đăng ký
+                    </NavLink>
+                    <NavLink
+                        to="/discount-codes"
+                        className={navClass}
+                        onClick={() => setSidebarOpen(false)}
+                    >
+                        Mã giảm giá
                     </NavLink>
                     <a
                         href={customerHomeUrl}

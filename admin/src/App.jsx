@@ -11,6 +11,7 @@ import AdminPartnerMeals from './pages/AdminPartnerMeals';
 import AdminPartnerRatings from './pages/AdminPartnerRatings';
 import AdminPackages from './pages/AdminPackages';
 import AdminSubscriptions from './pages/AdminSubscriptions';
+import AdminDiscountCodes from './pages/AdminDiscountCodes';
 
 function App() {
     return (
@@ -33,6 +34,7 @@ function App() {
                     <Route path="partners/:partnerId/meals" element={<AdminPartnerMeals />} />
                     <Route path="meal-packages" element={<AdminPackages />} />
                     <Route path="subscriptions" element={<AdminSubscriptions />} />
+                    <Route path="discount-codes" element={<AdminDiscountCodes />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

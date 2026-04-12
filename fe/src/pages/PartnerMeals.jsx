@@ -21,6 +21,10 @@ const MEAL_ICONS = {
     SNACK: Cookie
 };
 
+const mealItemKey = (item) => `${item.menuId}-${item.id}`;
+
+const TRAY_SURCHARGE_VND = 1000;
+
 const PartnerMeals = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -47,6 +51,8 @@ const PartnerMeals = () => {
     const [feedbackBusy, setFeedbackBusy] = useState(false);
     const [feedbackError, setFeedbackError] = useState('');
     const [feedbackNotice, setFeedbackNotice] = useState('');
+    /** Per dish: whether to add tray (+1.000đ); key `${menuId}-${itemId}` */
+    const [withTrayChoice, setWithTrayChoice] = useState({});
 
     useEffect(() => {
         let isMounted = true;
@@ -178,10 +184,11 @@ const PartnerMeals = () => {
         try {
             setAddMessage('');
             setAddingMealId(item.id);
+            const k = mealItemKey(item);
             await cartService.addToCart({
                 menuItemId: item.id,
                 orderDate: orderDate,
-                withTray: true
+                withTray: Boolean(withTrayChoice[k])
             });
             setAddMessage('Đã thêm vào giỏ hàng');
             setToastType('success');
@@ -391,7 +398,8 @@ const PartnerMeals = () => {
                         />
                     </div>
                     <p className="partner-meals-toolbar-note">
-                        Chọn ngày trước khi thêm món vào giỏ hàng.
+                        Chọn ngày trước khi thêm món. Với từng món, bạn có thể chọn có kèm khay hay không
+                        (+{TRAY_SURCHARGE_VND.toLocaleString('vi-VN')}đ).
                     </p>
                 </div>
                 <Link to="/cart" className="partner-meals-cart-cta">
@@ -567,9 +575,14 @@ const PartnerMeals = () => {
                                     {period.label}
                                 </h2>
                                 <div className="partner-meals-grid">
-                                    {period.items.map((item) => (
+                                    {period.items.map((item) => {
+                                        const rowKey = mealItemKey(item);
+                                        const withTray = Boolean(withTrayChoice[rowKey]);
+                                        const basePrice = Number(item.priceOriginal) || 0;
+                                        const shownPrice = withTray ? basePrice + TRAY_SURCHARGE_VND : basePrice;
+                                        return (
                                         <article
-                                            key={`${item.menuId}-${item.id}`}
+                                            key={rowKey}
                                             className="partner-meal-card"
                                         >
                                             <div className="partner-meal-card-image">
@@ -610,14 +623,29 @@ const PartnerMeals = () => {
                                                     {item.itemName}
                                                 </h3>
                                                 <span className="partner-meal-price">
-                                                    {(
-                                                        item.priceOriginal || 0
-                                                    ).toLocaleString('vi-VN')}
-                                                    ₫
+                                                    {shownPrice.toLocaleString('vi-VN')}₫
                                                 </span>
+                                                <label className="partner-meal-tray-label">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={withTray}
+                                                        onChange={() =>
+                                                            setWithTrayChoice((prev) => ({
+                                                                ...prev,
+                                                                [rowKey]: !prev[rowKey]
+                                                            }))
+                                                        }
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                    <span>
+                                                        Kèm khay & dụng cụ (+
+                                                        {TRAY_SURCHARGE_VND.toLocaleString('vi-VN')}đ)
+                                                    </span>
+                                                </label>
                                             </div>
                                         </article>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </section>
                         ))}

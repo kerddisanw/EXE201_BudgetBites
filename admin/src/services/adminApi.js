@@ -31,3 +31,11 @@ export const adminSubscriptionService = {
     updateSubscriptionStatus: (id, status) =>
         api.patch(`/subscriptions/${id}/status?status=${encodeURIComponent(status)}`)
 };
+
+export const adminDiscountService = {
+    getAllDiscounts: () => api.get('/discounts'),
+    createDiscount: (body) => api.post('/discounts', body),
+    updateDiscount: (id, body) => api.put(`/discounts/id/${id}`, body),
+    setDiscountStatus: (id, value) =>
+        api.patch(`/discounts/id/${id}/status?value=${encodeURIComponent(value)}`)
+};

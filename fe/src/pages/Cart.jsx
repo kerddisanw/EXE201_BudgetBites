@@ -10,7 +10,7 @@ import {
     Trash2,
     UtensilsCrossed
 } from 'lucide-react';
-import { cartService, packageService, paymentService, subscriptionService } from '../services/api';
+import { cartService, discountService, paymentService, subscriptionService } from '../services/api';
 import './Cart.css';
 
 const Cart = () => {
@@ -22,9 +22,11 @@ const Cart = () => {
     const [toast, setToast] = useState('');
     const [activeSubscriptions, setActiveSubscriptions] = useState([]);
     const [selectedSubscriptionId, setSelectedSubscriptionId] = useState(null);
-    const [packages, setPackages] = useState([]);
-    const [selectedPackageId, setSelectedPackageId] = useState(null);
     const [payBusy, setPayBusy] = useState(false);
+    const [couponInput, setCouponInput] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponBusy, setCouponBusy] = useState(false);
+    const [couponFieldError, setCouponFieldError] = useState('');
 
     const fmtMoney = useMemo(
         () => (value) => {
@@ -41,15 +43,45 @@ const Cart = () => {
         []
     );
 
+    const cartSubtotalNum = useMemo(() => {
+        const v = cart?.totalAmount;
+        const n = typeof v === 'number' ? v : Number(v);
+        return Number.isFinite(n) ? n : 0;
+    }, [cart?.totalAmount]);
+
+    const couponDiscountNum = useMemo(() => {
+        if (!appliedCoupon) return 0;
+        const pct = Number(appliedCoupon.discountPercent);
+        if (!Number.isFinite(pct) || pct <= 0) return 0;
+        const raw = (cartSubtotalNum * pct) / 100;
+        return Math.round(raw * 100) / 100;
+    }, [cartSubtotalNum, appliedCoupon]);
+
+    const payableNum = useMemo(() => {
+        return Math.max(0, cartSubtotalNum - couponDiscountNum);
+    }, [cartSubtotalNum, couponDiscountNum]);
+
+    const showCouponUi = useMemo(
+        () => activeSubscriptions.length === 0 || !selectedSubscriptionId,
+        [activeSubscriptions.length, selectedSubscriptionId]
+    );
+
+    useEffect(() => {
+        if (!showCouponUi) {
+            setAppliedCoupon(null);
+            setCouponInput('');
+            setCouponFieldError('');
+        }
+    }, [showCouponUi]);
+
     const load = async () => {
         try {
             setLoadError('');
             setLoading(true);
 
-            const [cartRes, subsRes, packagesRes] = await Promise.all([
+            const [cartRes, subsRes] = await Promise.all([
                 cartService.getCart(),
-                subscriptionService.getMySubscriptions(),
-                packageService.getAllPackages()
+                subscriptionService.getMySubscriptions()
             ]);
 
             setCart(cartRes.data || { items: [], totalItems: 0, totalAmount: 0 });
@@ -58,10 +90,6 @@ const Cart = () => {
             const active = subsList.filter((s) => String(s.status || '').toUpperCase() === 'ACTIVE');
             setActiveSubscriptions(active);
             setSelectedSubscriptionId(active[0]?.id || null);
-
-            const pkgsList = Array.isArray(packagesRes?.data) ? packagesRes.data : [];
-            setPackages(pkgsList);
-            setSelectedPackageId(null);
         } catch (err) {
             setLoadError(
                 err.response?.data?.message || 'Không thể tải giỏ hàng. Vui lòng thử lại.'
@@ -114,6 +142,38 @@ const Cart = () => {
         }
     };
 
+    const handleApplyCoupon = async () => {
+        const raw = String(couponInput || '').trim();
+        setCouponFieldError('');
+        if (!raw) {
+            setCouponFieldError('Nhập mã giảm giá.');
+            return;
+        }
+        try {
+            setCouponBusy(true);
+            const res = await discountService.previewDiscount(raw);
+            const d = res?.data;
+            if (!d?.code) {
+                throw new Error('Mã không hợp lệ.');
+            }
+            setAppliedCoupon({
+                code: d.code,
+                discountPercent: Number(d.discountPercent)
+            });
+            showToast('Đã áp dụng mã giảm giá.', 1800);
+        } catch (err) {
+            setAppliedCoupon(null);
+            const msg =
+                err.response?.data?.message ||
+                err.message ||
+                'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
+            setCouponFieldError(msg);
+            showToast(msg, 2400);
+        } finally {
+            setCouponBusy(false);
+        }
+    };
+
     const handlePayWithPayOS = async () => {
         try {
             setPayBusy(true);
@@ -133,46 +193,19 @@ const Cart = () => {
                 return;
             }
 
-            if (!selectedSubscriptionId && !selectedPackageId) {
-                const res = await paymentService.createCartPayOSCheckout();
-                const { checkoutUrl, subscriptionId } = res.data || {};
-
-                if (!checkoutUrl) {
-                    throw new Error('Không thể tạo link thanh toán từ giỏ hàng.');
-                }
-
-                if (subscriptionId) {
-                    localStorage.setItem('bb_checkout_subscription_id', String(subscriptionId));
-                }
-
-                window.location.href = checkoutUrl;
-                return;
-            }
-
-            const packageIdToUse = selectedPackageId || packages?.[0]?.id;
-            if (!packageIdToUse) {
-                throw new Error('Vui lòng chọn một gói để thanh toán.');
-            }
-
-            const startDate = new Date().toISOString().split('T')[0];
-            const created = await subscriptionService.createSubscription({
-                packageId: packageIdToUse,
-                startDate,
-                notes: ''
-            });
-
-            const newSubscriptionId = created?.data?.id;
-            if (!newSubscriptionId) {
-                throw new Error('Không thể tạo subscription mới.');
-            }
-
-            localStorage.setItem('bb_checkout_subscription_id', String(newSubscriptionId));
-
-            const checkoutRes = await paymentService.createPayOSCheckout(newSubscriptionId);
-            const checkoutUrl = checkoutRes.data?.checkoutUrl;
+            const cartDiscountCode =
+                appliedCoupon?.code && String(appliedCoupon.code).trim()
+                    ? String(appliedCoupon.code).trim()
+                    : undefined;
+            const res = await paymentService.createCartPayOSCheckout(cartDiscountCode);
+            const { checkoutUrl, subscriptionId } = res.data || {};
 
             if (!checkoutUrl) {
-                throw new Error('Không thể tạo link thanh toán.');
+                throw new Error('Không thể tạo link thanh toán từ giỏ hàng.');
+            }
+
+            if (subscriptionId) {
+                localStorage.setItem('bb_checkout_subscription_id', String(subscriptionId));
             }
 
             window.location.href = checkoutUrl;
@@ -236,7 +269,7 @@ const Cart = () => {
                             </div>
                             <div className="cart-stat cart-stat-accent">
                                 <span className="cart-stat-label">Tạm tính</span>
-                                <strong>{fmtMoney(cart.totalAmount)}</strong>
+                                <strong>{fmtMoney(cartSubtotalNum)}</strong>
                             </div>
                         </div>
                     ) : null}
@@ -339,7 +372,7 @@ const Cart = () => {
                                     <CreditCard size={20} aria-hidden />
                                     <div>
                                         <div className="cart-summary-title">Thanh toán</div>
-                                        <p className="cart-summary-lead">PayOS · chọn gói nếu cần</p>
+                                        <p className="cart-summary-lead">PayOS · mã giảm giá khi thanh toán giỏ</p>
                                     </div>
                                 </div>
 
@@ -350,8 +383,24 @@ const Cart = () => {
                                     </div>
                                     <div className="cart-summary-row cart-summary-row-total">
                                         <span>Tạm tính</span>
-                                        <span className="cart-summary-amount">{fmtMoney(cart.totalAmount)}</span>
+                                        <span className="cart-summary-amount">{fmtMoney(cartSubtotalNum)}</span>
                                     </div>
+                                    {appliedCoupon && showCouponUi ? (
+                                        <>
+                                            <div className="cart-summary-row cart-summary-row-discount">
+                                                <span>
+                                                    Giảm giá ({appliedCoupon.discountPercent}%)
+                                                </span>
+                                                <span className="cart-summary-discount">
+                                                    −{fmtMoney(couponDiscountNum)}
+                                                </span>
+                                            </div>
+                                            <div className="cart-summary-row cart-summary-row-payable">
+                                                <span>Tổng thanh toán</span>
+                                                <span className="cart-summary-amount">{fmtMoney(payableNum)}</span>
+                                            </div>
+                                        </>
+                                    ) : null}
                                 </div>
 
                                 {payError ? <div className="cart-pay-error">{payError}</div> : null}
@@ -381,45 +430,69 @@ const Cart = () => {
                                                 ))}
                                             </select>
                                         </>
-                                    ) : (
-                                        <>
-                                            <label className="cart-payment-label" htmlFor="cart-pkg-select">
-                                                Đăng ký gói mới (tùy chọn)
+                                    ) : null}
+
+                                    {showCouponUi ? (
+                                        <div className="cart-coupon-block">
+                                            <label className="cart-payment-label" htmlFor="cart-coupon-input">
+                                                Mã giảm giá
                                             </label>
-                                            <select
-                                                id="cart-pkg-select"
-                                                className="cart-select"
-                                                value={selectedPackageId || ''}
-                                                onChange={(e) =>
-                                                    setSelectedPackageId(
-                                                        e.target.value ? Number(e.target.value) : null
-                                                    )
-                                                }
-                                                disabled={payBusy}
-                                            >
-                                                <option value="">Không</option>
-                                                {packages.length === 0 ? (
-                                                    <option value="">Đang tải gói...</option>
-                                                ) : (
-                                                    packages.map((p) => (
-                                                        <option key={p.id} value={p.id}>
-                                                            {p.name || 'Gói'} ({fmtMoney(p.price)})
-                                                        </option>
-                                                    ))
-                                                )}
-                                            </select>
-                                        </>
-                                    )}
+                                            <div className="cart-coupon-row">
+                                                <input
+                                                    id="cart-coupon-input"
+                                                    type="text"
+                                                    className="cart-coupon-input"
+                                                    placeholder="Nhập mã"
+                                                    value={couponInput}
+                                                    onChange={(e) => {
+                                                        setCouponInput(e.target.value);
+                                                        setCouponFieldError('');
+                                                    }}
+                                                    disabled={payBusy || couponBusy}
+                                                    autoComplete="off"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="cart-btn cart-coupon-apply"
+                                                    onClick={handleApplyCoupon}
+                                                    disabled={payBusy || couponBusy}
+                                                >
+                                                    {couponBusy ? '...' : 'Áp dụng'}
+                                                </button>
+                                            </div>
+                                            {couponFieldError ? (
+                                                <p className="cart-coupon-error" role="alert">
+                                                    {couponFieldError}
+                                                </p>
+                                            ) : null}
+                                            {appliedCoupon ? (
+                                                <p className="cart-coupon-ok">
+                                                    Đang dùng mã <strong>{appliedCoupon.code}</strong>
+                                                    {appliedCoupon.discountPercent != null
+                                                        ? ` · ${appliedCoupon.discountPercent}%`
+                                                        : ''}
+                                                    <button
+                                                        type="button"
+                                                        className="cart-coupon-remove"
+                                                        onClick={() => {
+                                                            setAppliedCoupon(null);
+                                                            setCouponInput('');
+                                                            setCouponFieldError('');
+                                                        }}
+                                                        disabled={payBusy}
+                                                    >
+                                                        Bỏ mã
+                                                    </button>
+                                                </p>
+                                            ) : null}
+                                        </div>
+                                    ) : null}
 
                                     <button
                                         type="button"
                                         className="cart-btn cart-pay-btn"
                                         onClick={handlePayWithPayOS}
-                                        disabled={
-                                            payBusy ||
-                                            items.length === 0 ||
-                                            (activeSubscriptions.length === 0 && packages.length === 0)
-                                        }
+                                        disabled={payBusy || items.length === 0}
                                     >
                                         {payBusy ? 'Đang mở thanh toán...' : 'Thanh toán PayOS'}
                                     </button>

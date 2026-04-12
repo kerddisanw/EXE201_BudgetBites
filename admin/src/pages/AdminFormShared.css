@@ -98,3 +98,48 @@
     font-weight: 600;
     color: #15803d;
 }
+
+.admin-btn-secondary {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--bb-border, #e2e8f0);
+    background: #fff;
+    color: var(--bb-text, #1e293b);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-btn-secondary:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.admin-btn-secondary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.admin-btn-link {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--bb-orange, #f97316);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.admin-btn-link:hover:not(:disabled) {
+    color: var(--bb-orange-dark, #ea580c);
+}
+
+.admin-btn-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
