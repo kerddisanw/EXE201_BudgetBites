@@ -96,7 +96,18 @@ export const orderService = {
 export const paymentService = {
     createPayOSCheckout: (subscriptionId) =>
         api.post(`/payments/payos/checkout?subscriptionId=${subscriptionId}`),
-    createCartPayOSCheckout: () => api.post('/payments/payos/checkout-cart')
+    createCartPayOSCheckout: (discountCode) => {
+        const q =
+            discountCode && String(discountCode).trim()
+                ? `?discountCode=${encodeURIComponent(String(discountCode).trim())}`
+                : '';
+        return api.post(`/payments/payos/checkout-cart${q}`);
+    }
+};
+
+/** Mã giảm giá — GET /discounts/preview/{code} returns details when valid */
+export const discountService = {
+    previewDiscount: (code) => api.get(`/discounts/preview/${encodeURIComponent(String(code).trim())}`)
 };
 
 export const feedbackService = {

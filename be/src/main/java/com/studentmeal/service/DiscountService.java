@@ -43,6 +43,19 @@ public class DiscountService {
                 discountCode.getMaxUsage() > 0;
     }
 
+    /** Customer checkout: returns discount details only if the code is currently valid. */
+    @Transactional(readOnly = true)
+    public DiscountDTO getValidDiscountForPreview(String rawCode) {
+        String code = rawCode == null ? "" : rawCode.trim();
+        if (code.isEmpty()) {
+            throw new ResourceNotFoundException("Mã giảm giá không hợp lệ");
+        }
+        if (!validateDiscount(code)) {
+            throw new ResourceNotFoundException("Mã giảm giá không hợp lệ hoặc đã hết hạn");
+        }
+        return getDiscountByCode(code);
+    }
+
     @Transactional
     public DiscountDTO createDiscount(DiscountRequest request) {
         DiscountCode discountCode = new DiscountCode();

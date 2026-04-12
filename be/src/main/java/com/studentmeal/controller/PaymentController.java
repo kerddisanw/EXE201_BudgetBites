@@ -41,8 +41,9 @@ public class PaymentController {
 
     @PostMapping("/payos/checkout-cart")
     @Operation(summary = "Create PayOS checkout session from current cart total (no package required)")
-    public ResponseEntity<com.studentmeal.service.PaymentService.CartPayOSCheckoutResponse> createPayOSCheckoutFromCart() {
-        return ResponseEntity.ok(paymentService.createCartPayOSCheckoutFromCart());
+    public ResponseEntity<com.studentmeal.service.PaymentService.CartPayOSCheckoutResponse> createPayOSCheckoutFromCart(
+            @RequestParam(required = false) String discountCode) {
+        return ResponseEntity.ok(paymentService.createCartPayOSCheckoutFromCart(discountCode));
     }
 
     @PostMapping("/payos/webhook")

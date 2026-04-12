@@ -7,9 +7,13 @@ import com.studentmeal.entity.MealPackage;
 import com.studentmeal.entity.Payment;
 import com.studentmeal.entity.Subscription;
 import com.studentmeal.exception.ResourceNotFoundException;
+import com.studentmeal.entity.DiscountCode;
+import com.studentmeal.entity.SubscriptionDiscount;
 import com.studentmeal.repository.CustomerRepository;
+import com.studentmeal.repository.DiscountCodeRepository;
 import com.studentmeal.repository.MealPackageRepository;
 import com.studentmeal.repository.PaymentRepository;
+import com.studentmeal.repository.SubscriptionDiscountRepository;
 import com.studentmeal.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,6 +38,9 @@ public class PaymentService {
     private final MealPackageRepository mealPackageRepository;
     private final CartService cartService;
     private final PayOSService payOSService;
+    private final DiscountService discountService;
+    private final DiscountCodeRepository discountCodeRepository;
+    private final SubscriptionDiscountRepository subscriptionDiscountRepository;
 
     public record CartPayOSCheckoutResponse(String checkoutUrl, String orderCode, Long subscriptionId) {}
 
@@ -76,7 +85,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public CartPayOSCheckoutResponse createCartPayOSCheckoutFromCart() {
+    public CartPayOSCheckoutResponse createCartPayOSCheckoutFromCart(String discountCodeParam) {
         CartResponse cart = cartService.getCart();
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new RuntimeException("Giỏ hàng trống");
@@ -84,6 +93,28 @@ public class PaymentService {
 
         if (cart.getTotalAmount() == null) {
             throw new RuntimeException("Không xác định được tổng tiền giỏ hàng");
+        }
+
+        BigDecimal cartTotal = cart.getTotalAmount();
+        BigDecimal totalAmount = cartTotal;
+        DiscountCode appliedDiscount = null;
+
+        if (discountCodeParam != null && !discountCodeParam.isBlank()) {
+            String dc = discountCodeParam.trim();
+            if (!discountService.validateDiscount(dc)) {
+                throw new ResourceNotFoundException("Mã giảm giá không hợp lệ hoặc đã hết hạn");
+            }
+            appliedDiscount = discountCodeRepository.findByCode(dc)
+                    .orElseThrow(() -> new ResourceNotFoundException("Discount code not found"));
+            BigDecimal discountAmount = totalAmount
+                    .multiply(appliedDiscount.getDiscountPercent())
+                    .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+            totalAmount = totalAmount.subtract(discountAmount);
+            if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new RuntimeException("Số tiền sau giảm giá phải lớn hơn 0");
+            }
+            appliedDiscount.setMaxUsage(appliedDiscount.getMaxUsage() - 1);
+            discountCodeRepository.save(appliedDiscount);
         }
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -101,14 +132,22 @@ public class PaymentService {
         subscription.setStartDate(today);
         subscription.setEndDate(today);
         subscription.setStatus(Subscription.SubscriptionStatus.PENDING);
-        subscription.setTotalAmount(cart.getTotalAmount());
+        subscription.setTotalAmount(totalAmount);
         subscription.setNotes(BudgetBitesConstants.SUBSCRIPTION_NOTES_CART_CHECKOUT_NO_PACKAGE);
 
         Subscription savedSub = subscriptionRepository.save(subscription);
 
+        if (appliedDiscount != null) {
+            SubscriptionDiscount sd = new SubscriptionDiscount();
+            sd.setSubscription(savedSub);
+            sd.setDiscountCode(appliedDiscount);
+            sd.setDiscountAmount(cartTotal.subtract(totalAmount));
+            subscriptionDiscountRepository.save(sd);
+        }
+
         Payment payment = new Payment();
         payment.setSubscription(savedSub);
-        payment.setAmount(cart.getTotalAmount());
+        payment.setAmount(totalAmount);
         payment.setPaymentMethod(Payment.PaymentMethod.E_WALLET);
         payment.setStatus(Payment.PaymentStatus.PENDING);
         payment = paymentRepository.save(payment);

@@ -23,6 +23,11 @@ public class DiscountController {
         return ResponseEntity.ok(discountService.getAllDiscounts());
     }
 
+    @GetMapping("/preview/{code}")
+    public ResponseEntity<DiscountDTO> previewDiscount(@PathVariable String code) {
+        return ResponseEntity.ok(discountService.getValidDiscountForPreview(code));
+    }
+
     @GetMapping("/{code}")
     public ResponseEntity<Boolean> validateDiscount(@PathVariable String code) {
         return ResponseEntity.ok(discountService.validateDiscount(code));
