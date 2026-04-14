@@ -65,7 +65,7 @@
 
 .cart-hero-title {
     margin: 16px 0 8px;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: clamp(1.65rem, 3.2vw, 2.15rem);
     font-weight: 800;
     letter-spacing: -0.03em;
@@ -110,7 +110,7 @@
 }
 
 .cart-stat strong {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 1.35rem;
     font-weight: 800;
     color: #fff;
@@ -245,7 +245,7 @@
 }
 
 .cart-empty-heading {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 1.25rem;
     font-weight: 800;
     color: #0f172a;
@@ -320,7 +320,7 @@
 }
 
 .cart-item-index {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 0.8rem;
     font-weight: 800;
     color: #cbd5e1;
@@ -334,7 +334,7 @@
 }
 
 .cart-item-title {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 1.05rem;
     font-weight: 800;
     color: #0f172a;
@@ -379,7 +379,7 @@
 }
 
 .cart-item-price {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-weight: 800;
     font-size: 1.1rem;
     color: #ea580c;
@@ -412,7 +412,7 @@
 }
 
 .cart-summary-title {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 1.05rem;
     font-weight: 800;
     color: #0f172a;
@@ -469,7 +469,7 @@
 }
 
 .cart-summary-amount {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-weight: 800;
     font-size: 1.15rem;
     color: #0f172a;

@@ -15,7 +15,7 @@
     --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     background: var(--bb-bg);
     color: var(--bb-text);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 .home-section-inner {
@@ -57,7 +57,7 @@
 }
 
 .home-hero-title {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     margin: 0 0 16px;
     font-size: clamp(2.5rem, 6vw, 4.5rem);
     font-weight: 800;
@@ -281,7 +281,7 @@
 }
 
 .home-why-card h3 {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     margin: 0 0 10px;
     font-size: 1.15rem;
     font-weight: 700;
@@ -979,7 +979,7 @@
 }
 
 .home-package-card h3 {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 16px;

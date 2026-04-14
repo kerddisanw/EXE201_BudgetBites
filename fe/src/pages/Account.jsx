@@ -619,6 +619,14 @@ const Account = () => {
                                         >
                                             {profileSaving ? 'Đang lưu…' : 'Lưu hồ sơ'}
                                         </button>
+                                        <button
+                                            type="button"
+                                            className="account-profile-logout"
+                                            onClick={handleLogout}
+                                        >
+                                            <LogOut size={16} />
+                                            Đăng xuất
+                                        </button>
                                         <Link to="/account" className="account-profile-cancel">
                                             Quay lại tổng quan
                                         </Link>
